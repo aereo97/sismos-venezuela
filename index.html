@@ -713,6 +713,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         #mapa { height:340px; border-radius:10px; margin-top:6px; background:#22222a; z-index:0; }
         .leaflet-popup-content { font-size:.9em; }
         .leaflet-container { background:#22222a; }
+        .aviso-legal { background:#3a2e1a; border:1px solid #6b5424; color:#e8d9b8; font-size:.8em; line-height:1.45; padding:11px 13px; border-radius:8px; margin-bottom:14px; }
         .acordeon { background:var(--card); margin-top:14px; border-radius:8px; overflow:hidden; }
         .cabecera { padding:13px; cursor:pointer; font-weight:bold; border-bottom:1px solid var(--line); }
         .contenido { padding:13px; display:none; font-size:.88em; color:#ccc; line-height:1.5; }
@@ -723,6 +724,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <div class="container">
     <h1>🌎 Monitor Sísmico — Venezuela</h1>
     <div class="autor">Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)</div>
+
+    <div class="aviso-legal">
+        ⚠️ <b>Aviso:</b> Herramienta informativa de ayuda, <b>no es un sistema oficial de alerta temprana</b>.
+        Usa datos públicos de USGS y FUNVISIS que pueden retrasarse, fallar o estar incompletos.
+        <b>No sustituye a Protección Civil ni a los canales oficiales.</b> No garantiza avisar de todos los
+        sismos ni funcionar sin conexión. Úsala bajo tu propia responsabilidad.
+    </div>
 
     <button id="btn-activar" class="btn-activar" onclick="activarSistema()">TOCA PARA ACTIVAR EL MONITOREO Y LA ALARMA</button>
 
