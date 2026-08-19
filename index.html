@@ -777,6 +777,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     <h2 class="sec" data-i18n="lista_titulo">Últimos movimientos</h2>
     <div id="alerta-banner" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#b71c1c;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
+    <div id="alerta-ambar" onclick="this.style.display='none'" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1990;background:#ff8f00;color:#000;font-weight:bold;text-align:center;padding:10px 16px;cursor:pointer;box-shadow:0 -2px 8px rgba(0,0,0,.5)"></div>
     <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
     <div id="temp-panel" class="controls" style="display:none; margin-top:14px;">
@@ -847,6 +848,7 @@ es:{
  ahora:'ahora mismo', hace_min:'hace {n} min', hace_h:'hace {n} h',
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
+ posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.',
  temp_error:'No se pudo traer la temperatura (NASA POWER no respondió). Prueba en un rato.', temp_sismo:'sismo',
@@ -873,6 +875,7 @@ en:{
  ahora:'just now', hace_min:'{n} min ago', hace_h:'{n} h ago',
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
+ posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
  temp_fuente:'Surface temperature (TS, °C) — data from the NASA POWER project (power.larc.nasa.gov). Exploratory comparison: science has not shown that temperature predicts earthquakes.',
  temp_error:'Could not fetch the temperature (NASA POWER did not answer). Try again in a while.', temp_sismo:'quake',
@@ -899,6 +902,7 @@ it:{
  ahora:'proprio ora', hace_min:'{n} min fa', hace_h:'{n} h fa',
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
+ posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
  temp_fuente:'Temperatura superficiale (TS, °C) — dati del progetto NASA POWER (power.larc.nasa.gov). Confronto esplorativo: la scienza non ha dimostrato che la temperatura preveda i terremoti.',
  temp_error:'Impossibile scaricare la temperatura (NASA POWER non risponde). Riprova tra poco.', temp_sismo:'sisma',
@@ -925,6 +929,7 @@ pt:{
  ahora:'agora mesmo', hace_min:'há {n} min', hace_h:'há {n} h',
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
+ posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superfície (TS, °C) — dados do projeto NASA POWER (power.larc.nasa.gov). Comparação exploratória: a ciência não demonstrou que a temperatura preveja sismos.',
  temp_error:'Não foi possível obter a temperatura (NASA POWER não respondeu). Tente daqui a pouco.', temp_sismo:'sismo',
@@ -999,7 +1004,8 @@ function cambiarModo(aMundo){
     idsVistos = new Set(); vistosRec = []; sismosEnVivo = []; ultimoSondeo = [];
     primeraCarga = true;
     encuadrarMapa();
-    if(monitoreoActivo){ abrirEmsc(); chequear(); }
+    testimAvisados=new Set(); testimPrimera=true;
+    if(monitoreoActivo){ abrirEmsc(); chequear(); sondearTestimonios(); }
 }
 function initModo(){
     let guardado = null;
@@ -1030,7 +1036,7 @@ function alarmaVisual(s){
     setTimeout(()=>document.body.classList.remove('alerta-roja'),10000);
     if(s){
         const b=document.getElementById('alerta-banner');
-        b.textContent=`⚠️ M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}`;
+        b.textContent=`⚠️ M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}${s.prelim?' · '+t('sin_confirmar'):''}`;
         b.style.display='block';
         clearTimeout(alertaTimer);
         alertaTimer=setTimeout(()=>{ b.style.display='none'; },60000);
@@ -1138,6 +1144,7 @@ function abrirEmsc(){
         let m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
         const s=sismoDesdeEmsc(m);
         if(!s) return;
+        s.prelim = (m.action !== 'update');
         // Mundo: desde la magnitud fijada. Venezuela: cualquier sismo dentro de la caja.
         if(modoMundo){ if(s.mag < MUNDO_MINMAG) return; }
         else if(!(isFinite(s.lat)&&isFinite(s.lon)
@@ -1154,6 +1161,50 @@ function abrirEmsc(){
         wsEspera=Math.min(wsEspera*2, 60000);   // reintento con espera creciente, sin machacar
     };
 }
+// ---- Testimonios EMSC (crowdsourcing): gente que lo sintio, 15-90 s antes del calculo sismologico.
+// Aviso ambar "sin confirmar"; cuando el mismo sismo llega por el WS o el sondeo, el ambar se retira.
+const TESTIM_URL='https://www.seismicportal.eu/testimonies-ws/api/search';
+const TESTIM_INTERVALO_MS=30000;
+let testimAvisados=new Set(), testimPrimera=true, ambarUnid=null, ambarTimer=null;
+async function sondearTestimonios(){
+    if(!monitoreoActivo) return;
+    try{
+        const q = modoMundo
+            ? `${TESTIM_URL}?minnbtestimonies=10&limit=20&format=json`
+            : `${TESTIM_URL}?lat=6.5&lon=-66.5&maxradius=9&minnbtestimonies=3&limit=20&format=json`;
+        const r=await fetch(q); if(!r.ok) return;
+        const lista=await r.json(); if(!Array.isArray(lista)) return;
+        const ahora=Date.now();
+        for(const ev of lista){
+            const ms=Date.parse(String(ev.ev_event_time||'').replace(' UTC','Z'));
+            if(!isFinite(ms) || ahora-ms>15*60000) continue;   // solo lo muy reciente
+            const unid=ev.ev_unid;
+            if(!unid || testimAvisados.has(unid)) continue;
+            testimAvisados.add(unid);
+            if(testimPrimera) continue;                        // al arrancar no se avisa de lo ya pasado
+            if(idsVistos.has('emsc-'+unid)) continue;          // ya confirmado: no hay nada que anticipar
+            avisoAmbar(ev, ms, unid);
+        }
+        testimPrimera=false;
+        if(testimAvisados.size>500) testimAvisados=new Set([...testimAvisados].slice(-200));
+    }catch(e){}
+}
+function avisoAmbar(ev, ms, unid){
+    const b=document.getElementById('alerta-ambar');
+    b.textContent=`⚠️ ${t('posible_sismo')} — ${ev.ev_region||'—'} · ${ev.ev_nbtestimonies} ${t('testimonios')} · ${cuando(ms)}`;
+    b.style.display='block';
+    ambarUnid=unid;
+    if(navigator.vibrate) navigator.vibrate([200,100,200]);
+    clearTimeout(ambarTimer);
+    ambarTimer=setTimeout(()=>{ b.style.display='none'; ambarUnid=null; },120000);
+}
+function retirarAmbarSiConfirmado(){
+    if(ambarUnid && idsVistos.has('emsc-'+ambarUnid)){
+        document.getElementById('alerta-ambar').style.display='none';
+        ambarUnid=null;
+    }
+}
+
 function cerrarEmsc(){
     wsCerradoAdrede=true;
     if(wsEmsc){ try{ wsEmsc.close(); }catch(e){} wsEmsc=null; }
@@ -1178,7 +1229,10 @@ function dedupe(lista){
         const dup=out.find(o=>Math.abs(o.ms-s.ms)<120000 && Math.abs((o.mag||0)-(s.mag||0))<0.6
             && !(distKm(o,s)>150));
         if(!dup) out.push(s);
-        else if(dup.fuente==='USGS' && s.fuente==='FUNVISIS') dup.loc+=' · tb. FUNVISIS';
+        else{
+            if(dup.fuente==='USGS' && s.fuente==='FUNVISIS') dup.loc+=' · tb. FUNVISIS';
+            if(dup.prelim && s.fuente!=='EMSC') dup.prelim=false;   // otra agencia lo corrobora
+        }
     }
     return out;
 }
@@ -1236,7 +1290,7 @@ function pintar(sismos){
             <div class="mag ${c}">${s.mag.toFixed(1)}</div>
             <div class="info">
                 <div class="loc">${esc(s.loc)}</div>
-                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} ${t('prof')}`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
+                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} ${t('prof')}`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span>${s.prelim?` · <span style="color:#ffb300">${esc(t('sin_confirmar'))}</span>`:''} · 🌡️</div>
             </div></div>`;
     }).join('');
 }
@@ -1326,6 +1380,7 @@ function refrescar(){
         if(nuevosFuertes.length){ hacerSonarAlarma(); alarmaVisual(nuevosFuertes[0]); }
     }
     crudos.forEach(marcarVisto);
+    retirarAmbarSiConfirmado();
     primeraCarga=false;
     pintar(todos);
     actualizarMapa(todos);
@@ -1353,6 +1408,8 @@ async function activarSistema(){
     await pedirWakeLock();
     chequear();
     setInterval(chequear,INTERVALO_MS);
+    sondearTestimonios();
+    setInterval(sondearTestimonios,TESTIM_INTERVALO_MS);
 }
 
 initIdioma();
