@@ -709,7 +709,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         .sismo .loc { font-weight:bold; font-size:1em; }
         .sismo .meta { font-size:.82em; color:var(--muted); margin-top:3px; }
         .src { font-size:.72em; padding:2px 7px; border-radius:4px; font-weight:bold; }
-        .src.usgs{background:#1976d2}.src.funvisis{background:#d84315}
+        .src.usgs{background:#1976d2}.src.funvisis{background:#d84315}.src.emsc{background:#6a1b9a}
         .primero { outline:2px solid #ffeb3b55; }
 
         .alerta-roja { animation:flashRed 1s infinite; }
@@ -786,6 +786,16 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="cabecera" onclick="toggle(this)">🤖 Instalar en Android (Chrome)</div>
         <div class="contenido">Toca los tres puntos (⋮) → "Instalar aplicación".</div>
     </div>
+
+    <div class="aviso-legal" style="margin-top:14px;">
+        📊 <b>De dónde vienen los datos:</b> sismos de
+        <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servicio Geológico de EE.UU.),
+        <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y
+        <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo).
+        Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>.
+        Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> y colaboradores.
+        Gracias a todos ellos: sin sus datos abiertos esta app no existiría.
+    </div>
 </div>
 
 <script>
@@ -830,8 +840,8 @@ function pintarModo(){
     document.getElementById('btn-mundo').classList.toggle('on', modoMundo);
     document.getElementById('titulo').textContent = modoMundo ? '🌍 Monitor Sísmico — Mundo' : '🌎 Monitor Sísmico — Venezuela';
     document.getElementById('fuentes').textContent = modoMundo
-        ? 'Fuente oficial: USGS (red mundial) + FUNVISIS (Venezuela)'
-        : 'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)';
+        ? 'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER'
+        : 'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) · Temperatura: NASA POWER';
     document.getElementById('hint-modo').textContent = modoMundo
         ? 'Mundo: sismos de todo el planeta desde magnitud ' + MUNDO_MINMAG.toFixed(1) +
           ', en vivo por EMSC en cuanto los publica cualquier agencia.'
@@ -1073,7 +1083,7 @@ function pintar(sismos){
             <div class="mag ${c}">${s.mag.toFixed(1)}</div>
             <div class="info">
                 <div class="loc">${esc(s.loc)}</div>
-                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} km prof.`:''} · <span class="src ${s.fuente==='USGS'?'usgs':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
+                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} km prof.`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
             </div></div>`;
     }).join('');
 }
@@ -1104,7 +1114,7 @@ async function verTemperatura(i){
         if(!serie.length) throw new Error('sin datos');
         dibujarTemp(serie, s.ms);
         document.getElementById('temp-estado').textContent=
-            `Temperatura de superficie (TS, °C) — NASA POWER. Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.`;
+            `Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.`;
     }catch(e){
         document.getElementById('temp-estado').textContent='No se pudo traer la temperatura (NASA POWER no respondió). Prueba en un rato.';
     }
