@@ -813,6 +813,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div id="alerta-ambar" onclick="this.style.display='none'" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1990;background:#ff8f00;color:#000;font-weight:bold;text-align:center;padding:10px 16px;cursor:pointer;box-shadow:0 -2px 8px rgba(0,0,0,.5)"></div>
     <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
+    <div id="replicas-panel" class="controls" style="display:none; margin-top:14px;">
+        <label data-i18n="rep_titulo">Previsión de réplicas</label>
+        <div id="replicas-cuerpo"></div>
+        <div class="hint" data-i18n="rep_nota" style="margin-top:8px;"></div>
+    </div>
+
     <div id="temp-panel" class="controls" style="display:none; margin-top:14px;">
         <label id="temp-titulo">🌡️ Temperatura del epicentro</label>
         <canvas id="temp-canvas" style="width:100%; height:220px; display:block;"></canvas>
@@ -886,6 +892,7 @@ es:{
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ rep_titulo:'Previsión de réplicas', rep_principal:'Sismo principal', rep_prob24:'Probabilidad de una réplica en 24 h', rep_prob7:'Probabilidad de una réplica en 7 días', rep_mayor:'Réplica más fuerte esperada', rep_esperadas:'Réplicas esperadas', rep_observadas:'Réplicas ya registradas', rep_prox:'en las próximas 24 h', rep_nota:'Cálculo estadístico hecho en tu teléfono con las leyes de Omori-Utsu, Båth y el modelo genérico de Reasenberg-Jones. Dice cuántas réplicas cabe esperar, NO predice ninguna en concreto ni dice cuándo. Las réplicas fuertes pueden derribar lo que el sismo principal dejó tocado: no entres en edificios dañados.',
  tsu_badge:'🌊 Riesgo de tsunami', tsu_local:'Posible tsunami local en la costa cercana', tsu_regional:'Riesgo de tsunami regional', tsu_oceanico:'Riesgo de tsunami en todo el océano', tsu_marino:'sismo marino', tsu_oficial:'Avisos oficiales', tsu_nota:'Indicador informativo calculado en tu teléfono a partir de la magnitud, la profundidad y si el epicentro cae en el mar. NO es un aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
  pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
@@ -918,6 +925,7 @@ en:{
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ rep_titulo:'Aftershock forecast', rep_principal:'Main shock', rep_prob24:'Chance of an aftershock within 24 h', rep_prob7:'Chance of an aftershock within 7 days', rep_mayor:'Largest expected aftershock', rep_esperadas:'Expected aftershocks', rep_observadas:'Aftershocks already recorded', rep_prox:'in the next 24 h', rep_nota:'Statistical estimate computed on your phone with the Omori-Utsu and Båth laws and the generic Reasenberg-Jones model. It says how many aftershocks to expect, it does NOT predict any particular one nor when it will happen. Strong aftershocks can bring down what the main shock weakened: do not enter damaged buildings.',
  tsu_badge:'🌊 Tsunami risk', tsu_local:'Possible local tsunami on the nearby coast', tsu_regional:'Regional tsunami risk', tsu_oceanico:'Ocean-wide tsunami risk', tsu_marino:'offshore earthquake', tsu_oficial:'Official alerts', tsu_nota:'Informative indicator computed on your phone from magnitude, depth and whether the epicentre falls at sea. It is NOT an official tsunami warning.',
  capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
  pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
@@ -950,6 +958,7 @@ it:{
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ rep_titulo:'Previsione delle repliche', rep_principal:'Scossa principale', rep_prob24:'Probabilità di una replica entro 24 h', rep_prob7:'Probabilità di una replica entro 7 giorni', rep_mayor:'Replica più forte attesa', rep_esperadas:'Repliche attese', rep_observadas:'Repliche già registrate', rep_prox:'nelle prossime 24 h', rep_nota:'Stima statistica calcolata sul tuo telefono con le leggi di Omori-Utsu e Båth e il modello generico di Reasenberg-Jones. Dice quante repliche aspettarsi, NON ne predice nessuna in particolare né quando. Le repliche forti possono far crollare ciò che la scossa principale ha lesionato: non entrare in edifici danneggiati.',
  tsu_badge:'🌊 Rischio tsunami', tsu_local:'Possibile tsunami locale sulla costa vicina', tsu_regional:'Rischio di tsunami regionale', tsu_oceanico:'Rischio di tsunami su tutto l\'oceano', tsu_marino:'sisma in mare', tsu_oficial:'Avvisi ufficiali', tsu_nota:'Indicatore informativo calcolato sul tuo telefono a partire da magnitudo, profondità e se l\'epicentro cade in mare. NON è un allerta tsunami ufficiale.',
  capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
  pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
@@ -982,6 +991,7 @@ pt:{
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ rep_titulo:'Previsão de réplicas', rep_principal:'Sismo principal', rep_prob24:'Probabilidade de uma réplica em 24 h', rep_prob7:'Probabilidade de uma réplica em 7 dias', rep_mayor:'Réplica mais forte esperada', rep_esperadas:'Réplicas esperadas', rep_observadas:'Réplicas já registadas', rep_prox:'nas próximas 24 h', rep_nota:'Cálculo estatístico feito no seu telefone com as leis de Omori-Utsu e Båth e o modelo genérico de Reasenberg-Jones. Diz quantas réplicas se podem esperar, NÃO prevê nenhuma em concreto nem quando. As réplicas fortes podem derrubar o que o sismo principal deixou tocado: não entre em edifícios danificados.',
  tsu_badge:'🌊 Risco de tsunami', tsu_local:'Possível tsunami local na costa próxima', tsu_regional:'Risco de tsunami regional', tsu_oceanico:'Risco de tsunami em todo o oceano', tsu_marino:'sismo no mar', tsu_oficial:'Avisos oficiais', tsu_nota:'Indicador informativo calculado no seu telefone a partir da magnitude, da profundidade e de o epicentro cair no mar. NÃO é um aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
  pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
@@ -1022,6 +1032,7 @@ function aplicarIdioma(){
     }
     pintarModo();
     if(sismosPintados.length) pintar(sismosPintados);
+    if(ultimaLista.length) mostrarReplicas(ultimaLista);
 }
 function cambiarIdioma(l){
     if(!I18N[l] || l===idioma) return;
@@ -1314,6 +1325,69 @@ function avisoTsunami(s){
     b.style.display='block';
     hacerSonarAlarma();
     avisar('🌊 '+textoTsunami(s.tsu), txt);
+}
+
+// ---- Prevision de replicas tras un sismo grande ----
+// Modelo publico y estandar: la tasa de replicas decae segun Omori-Utsu y su numero depende de la
+// magnitud principal segun Reasenberg-Jones; la mayor esperada sale de la ley de Bath (Mm - 1.2).
+// Son valores genericos: sirven para saber que esperar, no para predecir un sismo concreto.
+const REP_MINMAG=5.5;          // por debajo, la prevision no aporta nada util
+const RJ={a:-1.67, b:1.0, p:1.08, c:0.05};   // parametros genericos (Reasenberg y Jones, 1989)
+const BATH=1.2;
+const DIA_MS=86400000;
+
+// Numero esperado de replicas de magnitud >= M entre t1 y t2 dias despues del principal.
+function replicasEsperadas(Mm, M, t1, t2){
+    if(!(t2>t1)) return 0;
+    const k=Math.pow(10, RJ.a + RJ.b*(Mm - M));
+    const q=1-RJ.p;
+    const F=x=>Math.pow(x+RJ.c, q)/q;      // p != 1, asi que la integral es una potencia
+    return k*(F(t2)-F(t1));
+}
+// Probabilidad de que ocurra al menos una (proceso de Poisson).
+function probReplica(Mm, M, t1, t2){ return 1 - Math.exp(-replicasEsperadas(Mm,M,t1,t2)); }
+
+// Radio de la zona de replicas: la longitud de rotura crece con la magnitud (Wells y Coppersmith).
+function radioReplicasKm(Mm){
+    const L=Math.pow(10, 0.5*Mm - 1.8);
+    return Math.max(40, Math.min(600, 2.5*L));
+}
+
+function buscarPrincipal(lista){
+    const ahora=Date.now();
+    const cand=lista.filter(s=>s.mag>=REP_MINMAG && ahora-s.ms < 14*DIA_MS && isFinite(s.lat) && isFinite(s.lon));
+    if(!cand.length) return null;
+    // el mas fuerte manda; a igualdad, el mas reciente
+    return cand.sort((a,b)=> (b.mag-a.mag) || (b.ms-a.ms))[0];
+}
+
+function contarObservadas(lista, principal){
+    const R=radioReplicasKm(principal.mag);
+    return lista.filter(s=> s!==principal && s.ms>principal.ms && s.mag<principal.mag
+        && isFinite(s.lat) && isFinite(s.lon)
+        && distKm({lat:principal.lat,lon:principal.lon}, s) <= R).length;
+}
+
+function pct(x){ return (x*100)<1 ? '<1%' : Math.round(x*100)+'%'; }
+
+function mostrarReplicas(lista){
+    const panel=document.getElementById('replicas-panel');
+    const principal=buscarPrincipal(lista);
+    if(!principal){ panel.style.display='none'; return; }
+    const Mm=principal.mag;
+    const t0=Math.max(0, (Date.now()-principal.ms)/DIA_MS);   // dias transcurridos
+    const M1=Math.max(2.5, Mm-1), M2=Math.max(2.5, Mm-2);
+    const fila=(et,v)=>`<div class="meta" style="display:flex;justify-content:space-between;gap:10px;padding:3px 0">
+        <span>${esc(et)}</span><b style="color:#ffca28">${esc(v)}</b></div>`;
+    document.getElementById('replicas-cuerpo').innerHTML =
+        fila(t('rep_principal'), 'M '+Mm.toFixed(1)+' · '+principal.loc) +
+        fila(t('rep_prob24')+' M≥'+M1.toFixed(1), pct(probReplica(Mm,M1,t0,t0+1))) +
+        fila(t('rep_prob7')+' M≥'+M1.toFixed(1), pct(probReplica(Mm,M1,t0,t0+7))) +
+        fila(t('rep_esperadas')+' M≥'+M2.toFixed(1)+' '+t('rep_prox'),
+             Math.round(replicasEsperadas(Mm,M2,t0,t0+1)*10)/10) +
+        fila(t('rep_mayor'), 'M ~'+(Mm-BATH).toFixed(1)) +
+        fila(t('rep_observadas')+' (' + Math.round(radioReplicasKm(Mm)) + ' km)', contarObservadas(lista, principal));
+    panel.style.display='block';
 }
 
 // ---- Alarma ----
@@ -1651,6 +1725,7 @@ function cuando(ms){
 }
 
 let sismosPintados=[];   // los que están en pantalla, para saber cuál se tocó
+let ultimaLista=[];      // la lista completa del último refresco, para rehacer paneles al cambiar de idioma
 function pintar(sismos){
     const cont=document.getElementById('lista');
     if(!sismos.length){ cont.innerHTML='<p style="text-align:center;color:var(--muted)">'+esc(t('sin_sismos'))+'</p>'; return; }
@@ -1757,6 +1832,8 @@ function refrescar(){
     pintar(todos);
     actualizarMapa(todos);
     evaluarTsunami(todos);
+    ultimaLista=todos;
+    mostrarReplicas(todos);
 }
 
 async function chequear(){
