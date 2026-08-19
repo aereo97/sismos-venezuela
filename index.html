@@ -791,6 +791,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="controls">
         <label data-i18n="sensor_label">Tu teléfono como sensor</label>
         <button id="btn-sensor" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarSensor()" data-i18n="sensor_btn">📳 Usar el movimiento del teléfono</button>
+        <label data-i18n="sens_label" style="margin-top:4px;">Sensibilidad</label>
+        <div class="modo-tabs" style="margin-bottom:8px;">
+            <button id="sens-baja" class="modo-btn" onclick="cambiarSensibilidad('baja')" data-i18n="sens_baja">Baja</button>
+            <button id="sens-media" class="modo-btn on" onclick="cambiarSensibilidad('media')" data-i18n="sens_media">Media</button>
+            <button id="sens-alta" class="modo-btn" onclick="cambiarSensibilidad('alta')" data-i18n="sens_alta">Alta</button>
+        </div>
+        <div class="hint" id="sens-hint" style="margin-bottom:8px;"></div>
         <div class="hint"><span id="sensor-estado" data-i18n="sensor_hint">El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.</span></div>
     </div>
 
@@ -896,6 +903,7 @@ es:{
  tsu_badge:'🌊 Riesgo de tsunami', tsu_local:'Posible tsunami local en la costa cercana', tsu_regional:'Riesgo de tsunami regional', tsu_oceanico:'Riesgo de tsunami en todo el océano', tsu_marino:'sismo marino', tsu_oficial:'Avisos oficiales', tsu_nota:'Indicador informativo calculado en tu teléfono a partir de la magnitud, la profundidad y si el epicentro cae en el mar. NO es un aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
  pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
+ sens_label:'Sensibilidad del sensor', sens_baja:'Baja', sens_media:'Media', sens_alta:'Alta', sens_hint_baja:'Baja: solo avisa si el teléfono se agita con fuerza. Casi ninguna falsa alarma, pero puede callarse en un sismo flojo.', sens_hint_media:'Media: el equilibrio recomendado. Ignora los golpes y el trajín del bolsillo.', sens_hint_alta:'Alta: salta con un movimiento suave. Detecta más, pero también da más falsas alarmas.',
  sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -929,6 +937,7 @@ en:{
  tsu_badge:'🌊 Tsunami risk', tsu_local:'Possible local tsunami on the nearby coast', tsu_regional:'Regional tsunami risk', tsu_oceanico:'Ocean-wide tsunami risk', tsu_marino:'offshore earthquake', tsu_oficial:'Official alerts', tsu_nota:'Informative indicator computed on your phone from magnitude, depth and whether the epicentre falls at sea. It is NOT an official tsunami warning.',
  capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
  pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
+ sens_label:'Sensor sensitivity', sens_baja:'Low', sens_media:'Medium', sens_alta:'High', sens_hint_baja:'Low: only warns if the phone is shaken hard. Almost no false alarms, but it may stay quiet in a weak quake.', sens_hint_media:'Medium: the recommended balance. It ignores knocks and pocket movement.', sens_hint_alta:'High: triggers on gentle movement. It catches more, but also gives more false alarms.',
  sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'The phone detects its own vibration. If it shakes with an earthquake pattern while a quake is reported nearby, the alarm fires instantly. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
@@ -962,6 +971,7 @@ it:{
  tsu_badge:'🌊 Rischio tsunami', tsu_local:'Possibile tsunami locale sulla costa vicina', tsu_regional:'Rischio di tsunami regionale', tsu_oceanico:'Rischio di tsunami su tutto l\'oceano', tsu_marino:'sisma in mare', tsu_oficial:'Avvisi ufficiali', tsu_nota:'Indicatore informativo calcolato sul tuo telefono a partire da magnitudo, profondità e se l\'epicentro cade in mare. NON è un allerta tsunami ufficiale.',
  capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
  pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
+ sens_label:'Sensibilità del sensore', sens_baja:'Bassa', sens_media:'Media', sens_alta:'Alta', sens_hint_baja:'Bassa: avvisa solo se il telefono viene scosso con forza. Quasi nessun falso allarme, ma può tacere in un sisma debole.', sens_hint_media:'Media: l\'equilibrio consigliato. Ignora i colpi e il movimento in tasca.', sens_hint_alta:'Alta: scatta con un movimento lieve. Rileva di più, ma dà anche più falsi allarmi.',
  sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
@@ -995,6 +1005,7 @@ pt:{
  tsu_badge:'🌊 Risco de tsunami', tsu_local:'Possível tsunami local na costa próxima', tsu_regional:'Risco de tsunami regional', tsu_oceanico:'Risco de tsunami em todo o oceano', tsu_marino:'sismo no mar', tsu_oficial:'Avisos oficiais', tsu_nota:'Indicador informativo calculado no seu telefone a partir da magnitude, da profundidade e de o epicentro cair no mar. NÃO é um aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
  pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
+ sens_label:'Sensibilidade do sensor', sens_baja:'Baixa', sens_media:'Média', sens_alta:'Alta', sens_hint_baja:'Baixa: só avisa se o telefone for agitado com força. Quase nenhum alarme falso, mas pode calar-se num sismo fraco.', sens_hint_media:'Média: o equilíbrio recomendado. Ignora os toques e o movimento no bolso.', sens_hint_alta:'Alta: dispara com um movimento suave. Deteta mais, mas também dá mais alarmes falsos.',
  sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -1031,6 +1042,7 @@ function aplicarIdioma(){
         document.getElementById('ultima-act').textContent=t('sin_activar');
     }
     pintarModo();
+    pintarSensibilidad();
     if(sismosPintados.length) pintar(sismosPintados);
     if(ultimaLista.length) mostrarReplicas(ultimaLista);
 }
@@ -1094,10 +1106,15 @@ function initModo(){
 // Un sismo mueve el telefono con oscilacion sostenida de segundos; un golpe de bolsillo es un
 // pico seco que se apaga enseguida. Se exige movimiento sostenido antes de creerselo, y para
 // la alarma se pide ademas que alguna agencia reporte un sismo cerca en los ultimos minutos.
-const SENSOR_UMBRAL = 1.2;          // m/s2 por encima de la gravedad: temblor notable
+// Tres graduaciones: cuanto mas sensible, antes salta y mas falsas alarmas da. Se recuerda.
+const SENSOR_NIVELES = {
+    baja:  {umbral:2.2, fuertes:14, sostenido:2000, cruces:10},
+    media: {umbral:1.2, fuertes:10, sostenido:1500, cruces:8},
+    alta:  {umbral:0.6, fuertes:6,  sostenido:1000, cruces:6}
+};
+const SENS_KEY='sismos-sensibilidad';
+let sensorNivel='media', sensorCfg=SENSOR_NIVELES.media;
 const SENSOR_VENTANA_MS = 6000;     // memoria corta de movimiento
-const SENSOR_SOSTENIDO_MS = 1500;   // tiempo minimo agitado para no confundirlo con un golpe
-const SENSOR_CRUCES_MIN = 8;        // oscilaciones (1-10 Hz): un golpe no oscila
 const SENSOR_CERCA_KM = 300;
 const SENSOR_RECIENTE_MS = 300000;  // 5 min
 
@@ -1124,6 +1141,27 @@ async function activarSensor(){
         ()=>{}, {enableHighAccuracy:false, timeout:10000, maximumAge:600000});
 }
 
+function pintarSensibilidad(){
+    ['baja','media','alta'].forEach(n=>{
+        const b=document.getElementById('sens-'+n);
+        if(b) b.classList.toggle('on', n===sensorNivel);
+    });
+    const h=document.getElementById('sens-hint');
+    if(h) h.textContent=t('sens_hint_'+sensorNivel);
+}
+function cambiarSensibilidad(nivel){
+    if(!SENSOR_NIVELES[nivel]) return;
+    sensorNivel=nivel; sensorCfg=SENSOR_NIVELES[nivel];
+    try{ localStorage.setItem(SENS_KEY, nivel); }catch(e){}
+    sensorMuestras=[]; sensorCruces=0;      // empezar a medir limpio con el nuevo listón
+    pintarSensibilidad();
+}
+function initSensibilidad(){
+    let g=null; try{ g=localStorage.getItem(SENS_KEY); }catch(e){}
+    if(g && SENSOR_NIVELES[g]){ sensorNivel=g; sensorCfg=SENSOR_NIVELES[g]; }
+    pintarSensibilidad();
+}
+
 function leerMovimiento(ev){
     const a=ev.accelerationIncludingGravity; if(!a) return;
     const mod=Math.hypot(a.x||0, a.y||0, a.z||0);
@@ -1141,11 +1179,11 @@ function leerMovimiento(ev){
 
 function evaluarTemblor(ahora){
     if(ahora - sensorUltimoAviso < 20000) return;                 // no repetir el aviso a cada muestra
-    const fuertes=sensorMuestras.filter(m=>m.d>SENSOR_UMBRAL);
-    if(fuertes.length<10) return;
+    const fuertes=sensorMuestras.filter(m=>m.d>sensorCfg.umbral);
+    if(fuertes.length<sensorCfg.fuertes) return;
     const durada=fuertes[fuertes.length-1].ms - fuertes[0].ms;
-    if(durada < SENSOR_SOSTENIDO_MS) return;                      // pico seco: golpe, no sismo
-    if(sensorCruces < SENSOR_CRUCES_MIN) return;                  // no oscila: golpe, no sismo
+    if(durada < sensorCfg.sostenido) return;                      // pico seco: golpe, no sismo
+    if(sensorCruces < sensorCfg.cruces) return;                   // no oscila: golpe, no sismo
     sensorUltimoAviso=ahora; sensorCruces=0; sensorMuestras=[];
     const cerca=sismoReportadoCerca(ahora);
     if(cerca){ hacerSonarAlarma(); alarmaVisual(cerca, t('sensor_confirmado')); }
@@ -1864,6 +1902,7 @@ async function activarSistema(){
 
 initIdioma();
 initModo();
+initSensibilidad();
 aplicarIdioma();
 </script>
 </body>
