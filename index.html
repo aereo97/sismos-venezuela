@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1e1e24">
     <meta name="referrer" content="no-referrer">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Sismos">
     <!-- Seguridad: la app solo puede conectarse a USGS y al repetidor propio; nada de exfiltrar a otros dominios -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu https://power.larc.nasa.gov https://archive-api.open-meteo.com; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; worker-src 'self'; connect-src 'self' https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu https://power.larc.nasa.gov https://archive-api.open-meteo.com; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <style>
 /* required styles */
 
@@ -776,6 +782,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <div class="controls">
+        <label data-i18n="pwa_label">App y avisos</label>
+        <button id="btn-instalar" class="modo-btn" style="width:100%;margin-bottom:8px;display:none;" onclick="instalarApp()" data-i18n="instalar_btn">⬇️ Instalar la app en el teléfono</button>
+        <button id="btn-avisos" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarAvisos()" data-i18n="avisos_btn">🔔 Activar los avisos</button>
+        <div class="hint"><span id="avisos-estado" data-i18n="pwa_hint">Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.</span></div>
+    </div>
+
+    <div class="controls">
         <label data-i18n="sensor_label">Tu teléfono como sensor</label>
         <button id="btn-sensor" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarSensor()" data-i18n="sensor_btn">📳 Usar el movimiento del teléfono</button>
         <div class="hint"><span id="sensor-estado" data-i18n="sensor_hint">El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.</span></div>
@@ -860,6 +873,7 @@ es:{
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
  sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -889,6 +903,7 @@ en:{
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
  sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'The phone detects its own vibration. If it shakes with an earthquake pattern while a quake is reported nearby, the alarm fires instantly. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
@@ -918,6 +933,7 @@ it:{
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
  sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
@@ -947,6 +963,7 @@ pt:{
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
  sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -972,6 +989,10 @@ function aplicarIdioma(){
     if(sensorActivo){
         document.getElementById('sensor-estado').textContent=t('sensor_on');
         document.getElementById('btn-sensor').textContent=t('sensor_btn');
+    }
+    if(('Notification' in window) && Notification.permission==='granted'){
+        document.getElementById('avisos-estado').textContent=t('avisos_on');
+        document.getElementById('btn-avisos').classList.add('on');
     }
     if(monitoreoActivo){
         // la última comprobación se reescribe sola en el próximo chequeo; no la pisamos
@@ -1119,6 +1140,65 @@ function avisoSensorSolo(){
     ambarTimer=setTimeout(()=>{ b.style.display='none'; },60000);
 }
 
+// ---- App instalable y avisos locales ----
+// El service worker guarda solo la propia pagina y sus iconos, para que abra sin conexion.
+// Los datos sismicos NUNCA se cachean. Los avisos se generan en el telefono: no hay push remoto,
+// ni servidor de notificaciones, ni nada que registrar en ningun sitio.
+let promptInstalar=null;
+
+if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+
+window.addEventListener('beforeinstallprompt', ev=>{
+    ev.preventDefault();
+    promptInstalar=ev;
+    const b=document.getElementById('btn-instalar'); if(b) b.style.display='block';
+});
+
+window.addEventListener('appinstalled', ()=>{
+    promptInstalar=null;
+    const b=document.getElementById('btn-instalar'); if(b) b.style.display='none';
+    document.getElementById('avisos-estado').textContent=t('instalada');
+});
+
+async function instalarApp(){
+    if(!promptInstalar) return;
+    promptInstalar.prompt();
+    try{ await promptInstalar.userChoice; }catch(e){}
+    promptInstalar=null;
+    document.getElementById('btn-instalar').style.display='none';
+}
+
+async function activarAvisos(){
+    const est=document.getElementById('avisos-estado');
+    if(!('Notification' in window)){ est.textContent=t('avisos_no'); return; }
+    let permiso=Notification.permission;
+    if(permiso==='default'){
+        try{ permiso=await Notification.requestPermission(); }catch(e){ est.textContent=t('avisos_no'); return; }
+    }
+    if(permiso==='granted'){
+        est.textContent=t('avisos_on');
+        document.getElementById('btn-avisos').classList.add('on');
+    }else{
+        est.textContent=t('avisos_negado');
+    }
+}
+
+// Un aviso del sistema, ademas del cartel y la sirena: sirve cuando la app esta de fondo.
+function avisar(titulo, cuerpo){
+    try{
+        if(!('Notification' in window) || Notification.permission!=='granted') return;
+        const opciones={ body:cuerpo, icon:'icon-192.png', badge:'icon-192.png',
+                         tag:'sismo', renotify:true, vibrate:[400,150,400] };
+        if(navigator.serviceWorker && navigator.serviceWorker.ready){
+            navigator.serviceWorker.ready.then(r=>r.showNotification(titulo,opciones)).catch(()=>{});
+        }else{
+            new Notification(titulo, opciones);
+        }
+    }catch(e){}
+}
+
 // ---- Alarma ----
 function hacerSonarAlarma(){
     if(!audioCtx) return;
@@ -1143,6 +1223,7 @@ function alarmaVisual(s, titulo){
         const b=document.getElementById('alerta-banner');
         b.textContent=(titulo?titulo+' — ':'⚠️ ')+`M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}${s.prelim?' · '+t('sin_confirmar'):''}`;
         b.style.display='block';
+        avisar(titulo||t('aviso_sismo'), b.textContent);
         clearTimeout(alertaTimer);
         alertaTimer=setTimeout(()=>{ b.style.display='none'; },60000);
     }
@@ -1298,6 +1379,7 @@ function avisoAmbar(ev, ms, unid){
     const b=document.getElementById('alerta-ambar');
     b.textContent=`⚠️ ${t('posible_sismo')} — ${ev.ev_region||'—'} · ${ev.ev_nbtestimonies} ${t('testimonios')} · ${cuando(ms)}`;
     b.style.display='block';
+    avisar(t('posible_sismo'), b.textContent);
     ambarUnid=unid;
     if(navigator.vibrate) navigator.vibrate([200,100,200]);
     clearTimeout(ambarTimer);

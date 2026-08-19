@@ -1,0 +1,19 @@
+{
+  "name": "Sismos Venezuela",
+  "short_name": "Sismos",
+  "description": "Monitor sismico en tiempo real de Venezuela y el mundo, con alarma sonora.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1e1e24",
+  "theme_color": "#1e1e24",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["utilities", "news", "weather"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
