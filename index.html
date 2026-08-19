@@ -688,6 +688,23 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
         .btn-activar { background:#f44336; border:none; color:#fff; padding:15px 20px; display:block; width:100%; font-size:17px; margin-bottom:14px; cursor:pointer; border-radius:8px; font-weight:bold; animation:pulse 2s infinite; }
         .btn-activar.on { background:#4caf50; animation:none; }
+        .paso { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid #2a2a2a; }
+        .paso:first-of-type { border-top:none; }
+        .paso-n { flex:0 0 34px; height:34px; line-height:34px; text-align:center; border-radius:50%;
+                  background:#37474f; color:#fff; font-weight:bold; font-size:18px; }
+        .paso.ok .paso-n { background:#4caf50; }
+        .paso-cuerpo { flex:1; min-width:0; }
+        .paso-tit { font-size:17px; font-weight:bold; line-height:1.35; }
+        .paso-est { font-size:15px; line-height:1.45; margin-top:4px; color:#cfd8dc; }
+        .paso .modo-btn { font-size:16px; padding:12px; margin-top:8px; }
+        .btn-instalar-grande { background:#1565c0; animation:none; }
+        .btn-instalar-grande.on { background:#4caf50; }
+        .guia { display:flex; gap:14px; align-items:center; padding:14px 0; border-top:1px solid #2a2a2a; }
+        .guia:first-of-type { border-top:none; }
+        .guia-dibujo { flex:0 0 64px; height:64px; border-radius:14px; background:#eceff1; color:#102027;
+                       font-size:34px; line-height:64px; text-align:center; }
+        .guia-txt { flex:1; font-size:18px; line-height:1.4; }
+        .guia-txt b { display:block; font-size:15px; color:#90a4ae; font-weight:bold; margin-bottom:2px; }
         @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(244,67,54,.7)} 50%{box-shadow:0 0 0 10px rgba(244,67,54,0)} 100%{box-shadow:0 0 0 0 rgba(244,67,54,0)} }
 
         .status-bar { text-align:center; background:var(--card); padding:12px; border-radius:8px; margin-bottom:14px; border:1px solid var(--line); }
@@ -747,7 +764,21 @@ svg.leaflet-image-layer.leaflet-interactive path {
         propia responsabilidad.
     </div>
 
-    <button id="btn-activar" class="btn-activar" onclick="activarSistema()">TOCA PARA ACTIVAR EL MONITOREO Y LA ALARMA</button>
+    <button id="btn-activar" class="btn-activar" onclick="activarProteccion()">🛡️ TOCA AQUÍ PARA ACTIVAR LA PROTECCIÓN</button>
+
+    <button id="btn-instalar-app" class="btn-activar btn-instalar-grande" onclick="instalarEnTelefono()" data-i18n="instalar_grande">📲 INSTALAR EN TU TELÉFONO</button>
+
+    <div class="controls" id="guia-ios" style="display:none;">
+        <label data-i18n="guia_tit">Cómo instalarla en tu iPhone</label>
+        <div class="guia"><div class="guia-dibujo">⬆️</div>
+            <div class="guia-txt"><b data-i18n="guia_p1">Paso 1</b><span data-i18n="guia_1">Toca el botón de compartir, abajo en el centro de la pantalla.</span></div></div>
+        <div class="guia"><div class="guia-dibujo">➕</div>
+            <div class="guia-txt"><b data-i18n="guia_p2">Paso 2</b><span data-i18n="guia_2">Baja por la lista y toca «Añadir a pantalla de inicio».</span></div></div>
+        <div class="guia"><div class="guia-dibujo">✅</div>
+            <div class="guia-txt"><b data-i18n="guia_p3">Paso 3</b><span data-i18n="guia_3">Toca «Añadir» arriba a la derecha. Ya tienes el icono en tu pantalla.</span></div></div>
+        <div class="hint" data-i18n="guia_nota" style="margin-top:6px;">Desde ese icono la app abre a pantalla completa y avisa mejor.</div>
+    </div>
+
 
     <div class="status-bar">
         <span id="status-usgs" class="status-badge">USGS ⏸️</span>
@@ -781,17 +812,35 @@ svg.leaflet-image-layer.leaflet-interactive path {
         </div>
     </div>
 
-    <div class="controls">
-        <label data-i18n="pwa_label">App y avisos</label>
-        <button id="btn-instalar" class="modo-btn" style="width:100%;margin-bottom:8px;display:none;" onclick="instalarApp()" data-i18n="instalar_btn">⬇️ Instalar la app en el teléfono</button>
-        <button id="btn-avisos" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarAvisos()" data-i18n="avisos_btn">🔔 Activar los avisos</button>
-        <div class="hint"><span id="avisos-estado" data-i18n="pwa_hint">Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.</span></div>
-    </div>
+    <div class="controls" id="pasos" style="display:none;">
+        <label data-i18n="pasos_label">Lo que se ha activado</label>
 
-    <div class="controls">
-        <label data-i18n="sensor_label">Tu teléfono como sensor</label>
-        <button id="btn-sensor" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarSensor()" data-i18n="sensor_btn">📳 Usar el movimiento del teléfono</button>
-        <div class="hint"><span id="sensor-estado" data-i18n="sensor_hint">El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.</span></div>
+        <div class="paso ok" id="paso-1">
+            <span class="paso-n">1</span>
+            <div class="paso-cuerpo">
+                <div class="paso-tit" data-i18n="paso1_tit">Vigilancia y alarma</div>
+                <div class="paso-est" id="paso1-est" data-i18n="paso1_ok">✅ Listo: la app ya vigila y la alarma sonará.</div>
+            </div>
+        </div>
+
+        <div class="paso" id="paso-2">
+            <span class="paso-n">2</span>
+            <div class="paso-cuerpo">
+                <div class="paso-tit" data-i18n="sensor_label">Tu teléfono como sensor</div>
+                <button id="btn-sensor" class="modo-btn" style="width:100%;" onclick="activarSensor().then(pintarPasos)" data-i18n="sensor_btn">📳 Usar el movimiento del teléfono</button>
+                <div class="paso-est"><span id="sensor-estado" data-i18n="sensor_hint">El teléfono detecta su propia vibración.</span></div>
+            </div>
+        </div>
+
+        <div class="paso" id="paso-3">
+            <span class="paso-n">3</span>
+            <div class="paso-cuerpo">
+                <div class="paso-tit" data-i18n="avisos_tit">Avisos aunque la app esté de fondo</div>
+                <button id="btn-avisos" class="modo-btn" style="width:100%;" onclick="activarAvisos().then(pintarPasos)" data-i18n="avisos_btn">🔔 Activar los avisos</button>
+                <div class="paso-est"><span id="avisos-estado" data-i18n="pwa_hint">Los avisos se crean en el propio teléfono.</span></div>
+            </div>
+        </div>
+
     </div>
 
     <h2 class="sec" data-i18n="mapa_titulo">Mapa en tiempo real</h2>
@@ -881,7 +930,7 @@ es:{
  fuentes_mundo:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.',
  modo_hint_mundo:'Mundo: sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
- activar_btn:'TOCA PARA ACTIVAR EL MONITOREO Y LA ALARMA', monitoreando:'✅ MONITOREANDO EN TIEMPO REAL',
+ activar_btn:'🛡️ TOCA AQUÍ PARA ACTIVAR LA PROTECCIÓN', monitoreando:'✅ PROTECCIÓN ACTIVADA — VIGILANDO',
  sin_activar:'Sin activar todavía.', ultima_comp:'Última comprobación: ',
  umbral_label:'Sonar la alarma solo desde magnitud',
  umbral_hint:'⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.',
@@ -897,6 +946,8 @@ es:{
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
  pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
  sensor_quieto:'📳 Sensor activo — el teléfono está posado y quieto: vigilando.', sensor_movido:'📳 Sensor activo — el teléfono se mueve, así que no vigila. Déjalo quieto sobre una mesa medio minuto y empieza solo.',
+ instalar_grande:'📲 INSTALAR EN TU TELÉFONO', ya_instalada:'✅ YA ESTÁ EN TU PANTALLA DE INICIO', guia_tit:'Cómo ponerla en tu pantalla de inicio', guia_p1:'Paso 1', guia_p2:'Paso 2', guia_p3:'Paso 3', guia_1:'Toca el botón de compartir, abajo en el centro de la pantalla.', guia_2:'Baja por la lista y toca «Añadir a pantalla de inicio».', guia_3:'Toca «Añadir», arriba a la derecha. Ya tienes el icono en tu pantalla.', guia_nota:'Desde ese icono la app abre a pantalla completa y los avisos funcionan mejor.',
+ pasos_label:'Lo que se ha activado', paso1_tit:'Vigilancia y alarma', paso1_ok:'✅ Listo: la app ya vigila y la alarma sonará.', avisos_tit:'Avisos aunque la app esté de fondo', paso_pendiente:'👉 Falta un toque: pulsa el botón de arriba.', paso_instalada:'✅ Listo: ya la tienes en la pantalla de inicio.', paso_ios:'👉 Para tenerla en la pantalla de inicio: toca el botón de compartir del navegador (⬆️) y elige «Añadir a pantalla de inicio».',
  sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'Deja el teléfono posado en una mesa: solo vigila cuando lleva medio minuto quieto, igual que hacen MyShake y las alertas de Android. Así una mano agitándolo no lo dispara. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -915,7 +966,7 @@ en:{
  fuentes_mundo:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
  modo_hint_vzla:'Venezuela: everything that moves in the country and its coast, however small.',
  modo_hint_mundo:'World: earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
- activar_btn:'TAP TO START MONITORING AND THE ALARM', monitoreando:'✅ MONITORING IN REAL TIME',
+ activar_btn:'🛡️ TAP HERE TO TURN ON PROTECTION', monitoreando:'✅ PROTECTION ON — WATCHING',
  sin_activar:'Not started yet.', ultima_comp:'Last check: ',
  umbral_label:'Sound the alarm only from magnitude',
  umbral_hint:'⚠️ For the alarm to sound, keep this screen open and on. Small quakes always appear in the list; the audible alarm fires from the chosen magnitude.',
@@ -931,6 +982,8 @@ en:{
  capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
  pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
  sensor_quieto:'📳 Sensor active — the phone is resting still: watching.', sensor_movido:'📳 Sensor active — the phone is moving, so it is not watching. Leave it still on a table for half a minute and it starts on its own.',
+ instalar_grande:'📲 INSTALL ON YOUR PHONE', ya_instalada:'✅ ALREADY ON YOUR HOME SCREEN', guia_tit:'How to put it on your home screen', guia_p1:'Step 1', guia_p2:'Step 2', guia_p3:'Step 3', guia_1:'Tap the share button, at the bottom centre of the screen.', guia_2:'Scroll down the list and tap «Add to Home Screen».', guia_3:'Tap «Add», top right. The icon is now on your screen.', guia_nota:'From that icon the app opens full screen and alerts work better.',
+ pasos_label:'What has been turned on', paso1_tit:'Watching and alarm', paso1_ok:'✅ Done: the app is watching and the alarm will sound.', avisos_tit:'Alerts even when the app is in the background', paso_pendiente:'👉 One tap missing: press the button above.', paso_instalada:'✅ Done: it is already on your home screen.', paso_ios:'👉 To put it on your home screen: tap the browser share button (⬆️) and choose «Add to Home Screen».',
  sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'Leave the phone resting on a table: it only watches after half a minute of stillness, just as MyShake and the Android alerts do. That way a shaking hand does not set it off. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
@@ -949,7 +1002,7 @@ it:{
  fuentes_mundo:'Fonti ufficiali: USGS (USA) + EMSC (Europa, in diretta) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: tutto ciò che si muove nel paese e sulla sua costa, per quanto piccolo.',
  modo_hint_mundo:'Mondo: terremoti di tutto il pianeta da magnitudo {mag}, in diretta via EMSC appena un ente li pubblica.',
- activar_btn:"TOCCA PER ATTIVARE IL MONITORAGGIO E L'ALLARME", monitoreando:'✅ MONITORAGGIO IN TEMPO REALE',
+ activar_btn:'🛡️ TOCCA QUI PER ATTIVARE LA PROTEZIONE', monitoreando:'✅ PROTEZIONE ATTIVA — SORVEGLIO',
  sin_activar:'Non ancora attivato.', ultima_comp:'Ultimo controllo: ',
  umbral_label:"Suona l'allarme solo da magnitudo",
  umbral_hint:"⚠️ Perché l'allarme suoni, tieni questo schermo aperto e acceso. I terremoti piccoli compaiono sempre nella lista; l'allarme sonoro scatta dalla magnitudo scelta.",
@@ -965,6 +1018,8 @@ it:{
  capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
  pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
  sensor_quieto:'📳 Sensore attivo — il telefono è posato e fermo: sorveglia.', sensor_movido:'📳 Sensore attivo — il telefono si muove, quindi non sorveglia. Lascialo fermo su un tavolo mezzo minuto e riparte da solo.',
+ instalar_grande:'📲 INSTALLA SUL TUO TELEFONO', ya_instalada:'✅ È GIÀ NELLA SCHERMATA HOME', guia_tit:'Come metterla nella schermata Home', guia_p1:'Passo 1', guia_p2:'Passo 2', guia_p3:'Passo 3', guia_1:'Tocca il pulsante di condivisione, in basso al centro dello schermo.', guia_2:'Scorri la lista e tocca «Aggiungi a Home».', guia_3:'Tocca «Aggiungi», in alto a destra. L\'icona è nella tua schermata.', guia_nota:'Da quell\'icona l\'app si apre a schermo intero e gli avvisi funzionano meglio.',
+ pasos_label:'Che cosa è stato attivato', paso1_tit:'Sorveglianza e allarme', paso1_ok:'✅ Fatto: l\'app sorveglia e l\'allarme suonerà.', avisos_tit:'Avvisi anche con l\'app in secondo piano', paso_pendiente:'👉 Manca un tocco: premi il pulsante qui sopra.', paso_instalada:'✅ Fatto: è già nella schermata Home.', paso_ios:'👉 Per averla nella schermata Home: tocca il pulsante di condivisione del browser (⬆️) e scegli «Aggiungi a Home».',
  sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
@@ -983,7 +1038,7 @@ pt:{
  fuentes_mundo:'Fontes oficiais: USGS (EUA) + EMSC (Europa, ao vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: tudo o que se move no país e na sua costa, por menor que seja.',
  modo_hint_mundo:'Mundo: sismos de todo o planeta a partir da magnitude {mag}, ao vivo via EMSC assim que qualquer agência os publica.',
- activar_btn:'TOQUE PARA ATIVAR O MONITORAMENTO E O ALARME', monitoreando:'✅ MONITORANDO EM TEMPO REAL',
+ activar_btn:'🛡️ TOQUE AQUI PARA ATIVAR A PROTEÇÃO', monitoreando:'✅ PROTEÇÃO ATIVA — A VIGIAR',
  sin_activar:'Ainda não ativado.', ultima_comp:'Última verificação: ',
  umbral_label:'Tocar o alarme só a partir da magnitude',
  umbral_hint:'⚠️ Para o alarme tocar, mantenha esta tela aberta e ligada. Os sismos pequenos sempre aparecem na lista; o alarme sonoro dispara a partir da magnitude escolhida.',
@@ -999,6 +1054,8 @@ pt:{
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
  pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
  sensor_quieto:'📳 Sensor ativo — o telefone está pousado e quieto: a vigiar.', sensor_movido:'📳 Sensor ativo — o telefone move-se, por isso não vigia. Deixe-o quieto numa mesa meio minuto e começa sozinho.',
+ instalar_grande:'📲 INSTALAR NO SEU TELEFONE', ya_instalada:'✅ JÁ ESTÁ NO ECRÃ PRINCIPAL', guia_tit:'Como pô-la no ecrã principal', guia_p1:'Passo 1', guia_p2:'Passo 2', guia_p3:'Passo 3', guia_1:'Toque no botão de partilha, em baixo ao centro do ecrã.', guia_2:'Desça a lista e toque em «Adicionar ao ecrã principal».', guia_3:'Toque em «Adicionar», em cima à direita. Já tem o ícone no ecrã.', guia_nota:'A partir desse ícone a app abre em ecrã inteiro e os avisos funcionam melhor.',
+ pasos_label:'O que foi ativado', paso1_tit:'Vigilância e alarme', paso1_ok:'✅ Pronto: a app já vigia e o alarme vai tocar.', avisos_tit:'Avisos mesmo com a app em segundo plano', paso_pendiente:'👉 Falta um toque: carregue no botão acima.', paso_instalada:'✅ Pronto: já está no ecrã principal.', paso_ios:'👉 Para a ter no ecrã principal: toque no botão de partilha do navegador (⬆️) e escolha «Adicionar ao ecrã principal».',
  sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
@@ -1035,6 +1092,8 @@ function aplicarIdioma(){
         document.getElementById('ultima-act').textContent=t('sin_activar');
     }
     pintarModo();
+    pintarPasos();
+    pintarInstalar();
     if(sismosPintados.length) pintar(sismosPintados);
     if(ultimaLista.length) mostrarReplicas(ultimaLista);
 }
@@ -1238,21 +1297,22 @@ if('serviceWorker' in navigator){
 window.addEventListener('beforeinstallprompt', ev=>{
     ev.preventDefault();
     promptInstalar=ev;
-    const b=document.getElementById('btn-instalar'); if(b) b.style.display='block';
+    pintarInstalar();
 });
 
 window.addEventListener('appinstalled', ()=>{
     promptInstalar=null;
-    const b=document.getElementById('btn-instalar'); if(b) b.style.display='none';
-    document.getElementById('avisos-estado').textContent=t('instalada');
+    pintarInstalar();
 });
 
+// Devuelve false si el navegador no llego a ensenar su instalador: entonces se ensena la guia.
 async function instalarApp(){
-    if(!promptInstalar) return;
-    promptInstalar.prompt();
+    if(!promptInstalar) return false;
+    try{ promptInstalar.prompt(); }catch(e){ promptInstalar=null; return false; }
     try{ await promptInstalar.userChoice; }catch(e){}
     promptInstalar=null;
-    document.getElementById('btn-instalar').style.display='none';
+    pintarInstalar();
+    return true;
 }
 
 async function activarAvisos(){
@@ -1897,6 +1957,62 @@ async function chequear(){
     refrescar();
 }
 
+// UN SOLO BOTON. El toque del usuario vale para todos los permisos que el navegador deje pedir
+// seguidos; lo que no se pueda encadenar queda como paso numerado con su propio boton grande.
+async function activarProteccion(){
+    document.getElementById('pasos').style.display='block';
+    await activarSistema();
+    // se repinta tras cada permiso: si el usuario tarda en contestar uno, los demas ya se ven hechos
+    try{ await activarSensor(); }catch(e){}
+    pintarPasos();
+    try{ await activarAvisos(); }catch(e){}
+    pintarPasos();
+}
+
+// Estado de cada paso: hecho, pendiente de un toque, o imposible en este telefono.
+function pintarPasos(){
+    const panel=document.getElementById('pasos');
+    if(!panel || panel.style.display==='none') return;
+    const marcar=(id,ok)=>document.getElementById(id).classList.toggle('ok', !!ok);
+    marcar('paso-1', monitoreoActivo);
+    marcar('paso-2', sensorActivo);
+    document.getElementById('btn-sensor').style.display = sensorActivo ? 'none' : 'block';
+    const hayAvisos=('Notification' in window);
+    const avisosOk=hayAvisos && Notification.permission==='granted';
+    marcar('paso-3', avisosOk);
+    document.getElementById('btn-avisos').style.display = (avisosOk || !hayAvisos) ? 'none' : 'block';
+}
+
+// ---- Instalar: boton aparte, y cada aparato por su camino ----
+function appInstalada(){
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
+           || window.navigator.standalone===true;
+}
+function esIphone(){
+    return /iPad|iPhone|iPod/.test(navigator.userAgent)
+           || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);   // iPad moderno se hace pasar por Mac
+}
+// Android y Chrome dan el instalador en un toque; el iPhone no lo ofrece a nadie, asi que ahi
+// lo unico honesto es ensenar el camino con dibujos grandes.
+async function instalarEnTelefono(){
+    if(appInstalada()){ pintarInstalar(); return; }
+    if(promptInstalar && await instalarApp()){ pintarInstalar(); return; }
+    document.getElementById('guia-ios').style.display='block';
+    document.getElementById('guia-ios').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function pintarInstalar(){
+    const b=document.getElementById('btn-instalar-app');
+    if(!b) return;
+    if(appInstalada()){
+        b.textContent=t('ya_instalada');
+        b.classList.add('on');
+        document.getElementById('guia-ios').style.display='none';
+    }else{
+        b.textContent=t('instalar_grande');
+        b.classList.remove('on');
+    }
+}
+
 async function activarSistema(){
     if(monitoreoActivo) return;
     audioCtx=new (window.AudioContext||window.webkitAudioContext)();
@@ -1913,6 +2029,7 @@ async function activarSistema(){
     setInterval(chequear,INTERVALO_MS);
     sondearTestimonios();
     setInterval(sondearTestimonios,TESTIM_INTERVALO_MS);
+    pintarPasos();
 }
 
 initIdioma();
