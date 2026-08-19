@@ -697,8 +697,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
         .paso-tit { font-size:17px; font-weight:bold; line-height:1.35; }
         .paso-est { font-size:15px; line-height:1.45; margin-top:4px; color:#cfd8dc; }
         .paso .modo-btn { font-size:16px; padding:12px; margin-top:8px; }
-        .btn-instalar-grande { background:#1565c0; animation:none; }
-        .btn-instalar-grande.on { background:#4caf50; }
         .guia { display:flex; gap:14px; align-items:center; padding:14px 0; border-top:1px solid #2a2a2a; }
         .guia:first-of-type { border-top:none; }
         .guia-dibujo { flex:0 0 64px; height:64px; border-radius:14px; background:#eceff1; color:#102027;
@@ -765,8 +763,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <button id="btn-activar" class="btn-activar" onclick="activarProteccion()">🛡️ TOCA AQUÍ PARA ACTIVAR LA PROTECCIÓN</button>
-
-    <button id="btn-instalar-app" class="btn-activar btn-instalar-grande" onclick="instalarEnTelefono()" data-i18n="instalar_grande">📲 INSTALAR EN TU TELÉFONO</button>
 
     <div class="controls" id="guia-ios" style="display:none;">
         <label data-i18n="guia_tit">Cómo instalarla en tu iPhone</label>
@@ -1967,6 +1963,13 @@ async function activarProteccion(){
     pintarPasos();
     try{ await activarAvisos(); }catch(e){}
     pintarPasos();
+    // El mismo toque deja la app en la pantalla de inicio. Android ensena su instalador y se
+    // instala sola; el iPhone no se lo ofrece a nadie, asi que ahi lo honesto es ensenar
+    // el camino con dibujos grandes.
+    if(!appInstalada()){
+        const instalado = promptInstalar ? await instalarApp() : false;
+        if(!instalado && !appInstalada()) mostrarGuia();
+    }
 }
 
 // Estado de cada paso: hecho, pendiente de un toque, o imposible en este telefono.
@@ -1983,34 +1986,21 @@ function pintarPasos(){
     document.getElementById('btn-avisos').style.display = (avisosOk || !hayAvisos) ? 'none' : 'block';
 }
 
-// ---- Instalar: boton aparte, y cada aparato por su camino ----
+// ---- Instalar: sin boton propio, va dentro del unico boton ----
 function appInstalada(){
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
            || window.navigator.standalone===true;
 }
-function esIphone(){
-    return /iPad|iPhone|iPod/.test(navigator.userAgent)
-           || (navigator.platform==='MacIntel' && navigator.maxTouchPoints>1);   // iPad moderno se hace pasar por Mac
+function mostrarGuia(){
+    const g=document.getElementById('guia-ios');
+    if(!g) return;
+    g.style.display='block';
+    g.scrollIntoView({behavior:'smooth', block:'start'});
 }
-// Android y Chrome dan el instalador en un toque; el iPhone no lo ofrece a nadie, asi que ahi
-// lo unico honesto es ensenar el camino con dibujos grandes.
-async function instalarEnTelefono(){
-    if(appInstalada()){ pintarInstalar(); return; }
-    if(promptInstalar && await instalarApp()){ pintarInstalar(); return; }
-    document.getElementById('guia-ios').style.display='block';
-    document.getElementById('guia-ios').scrollIntoView({behavior:'smooth', block:'start'});
-}
+// Si ya la tiene en la pantalla de inicio, la guia sobra.
 function pintarInstalar(){
-    const b=document.getElementById('btn-instalar-app');
-    if(!b) return;
-    if(appInstalada()){
-        b.textContent=t('ya_instalada');
-        b.classList.add('on');
-        document.getElementById('guia-ios').style.display='none';
-    }else{
-        b.textContent=t('instalar_grande');
-        b.classList.remove('on');
-    }
+    const g=document.getElementById('guia-ios');
+    if(g && appInstalada()) g.style.display='none';
 }
 
 async function activarSistema(){
