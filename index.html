@@ -809,6 +809,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     <h2 class="sec" data-i18n="lista_titulo">Últimos movimientos</h2>
     <div id="alerta-banner" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#b71c1c;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
+    <div id="alerta-tsunami" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2010;background:#01579b;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.02em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5);line-height:1.5"></div>
     <div id="alerta-ambar" onclick="this.style.display='none'" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1990;background:#ff8f00;color:#000;font-weight:bold;text-align:center;padding:10px 16px;cursor:pointer;box-shadow:0 -2px 8px rgba(0,0,0,.5)"></div>
     <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
@@ -826,6 +827,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="cabecera" onclick="toggle(this)" data-i18n="acc_and_t">🤖 Instalar en Android (Chrome)</div>
         <div class="contenido" data-i18n="acc_and_c">Toca los tres puntos (⋮) → "Instalar aplicación".</div>
     </div>
+
+    <div class="aviso-legal" style="margin-top:14px;">🌊 <span data-i18n="tsu_nota"></span></div>
 
     <div class="aviso-legal" style="margin-top:14px;" data-i18n-html="creditos">
         📊 <b>De dónde vienen los datos:</b> sismos de
@@ -883,6 +886,7 @@ es:{
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ tsu_badge:'🌊 Riesgo de tsunami', tsu_local:'Posible tsunami local en la costa cercana', tsu_regional:'Riesgo de tsunami regional', tsu_oceanico:'Riesgo de tsunami en todo el océano', tsu_marino:'sismo marino', tsu_oficial:'Avisos oficiales', tsu_nota:'Indicador informativo calculado en tu teléfono a partir de la magnitud, la profundidad y si el epicentro cae en el mar. NO es un aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
  pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
  sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
@@ -914,6 +918,7 @@ en:{
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ tsu_badge:'🌊 Tsunami risk', tsu_local:'Possible local tsunami on the nearby coast', tsu_regional:'Regional tsunami risk', tsu_oceanico:'Ocean-wide tsunami risk', tsu_marino:'offshore earthquake', tsu_oficial:'Official alerts', tsu_nota:'Informative indicator computed on your phone from magnitude, depth and whether the epicentre falls at sea. It is NOT an official tsunami warning.',
  capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
  pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
  sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'The phone detects its own vibration. If it shakes with an earthquake pattern while a quake is reported nearby, the alarm fires instantly. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
@@ -945,6 +950,7 @@ it:{
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ tsu_badge:'🌊 Rischio tsunami', tsu_local:'Possibile tsunami locale sulla costa vicina', tsu_regional:'Rischio di tsunami regionale', tsu_oceanico:'Rischio di tsunami su tutto l\'oceano', tsu_marino:'sisma in mare', tsu_oficial:'Avvisi ufficiali', tsu_nota:'Indicatore informativo calcolato sul tuo telefono a partire da magnitudo, profondità e se l\'epicentro cade in mare. NON è un allerta tsunami ufficiale.',
  capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
  pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
  sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
@@ -976,6 +982,7 @@ pt:{
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ tsu_badge:'🌊 Risco de tsunami', tsu_local:'Possível tsunami local na costa próxima', tsu_regional:'Risco de tsunami regional', tsu_oceanico:'Risco de tsunami em todo o oceano', tsu_marino:'sismo no mar', tsu_oficial:'Avisos oficiais', tsu_nota:'Indicador informativo calculado no seu telefone a partir da magnitude, da profundidade e de o epicentro cair no mar. NÃO é um aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
  pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
  sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
@@ -1213,6 +1220,102 @@ function avisar(titulo, cuerpo){
     }catch(e){}
 }
 
+// ---- Riesgo de tsunami en sismos marinos fuertes (mundial) ----
+// Regla sencilla y publica: hace falta un sismo somero, fuerte y con el epicentro en el mar.
+// Lo del mar se decide con una mascara de costas del planeta que viaja dentro del propio sitio
+// (Natural Earth, simplificada a ~8 km); se descarga solo cuando aparece un sismo candidato.
+// Esto NO es un aviso oficial: es un indicador para mirar los canales oficiales cuanto antes.
+const TSU_MINMAG=6.5, TSU_MAXPROF=100, TSU_ANILLO_KM=40;
+const TSU_OFICIAL='https://www.tsunami.gov';
+let tierraPolis=null, tierraCargando=null;
+
+const TSU_AL='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+const TSU_IDX={}; for(let i=0;i<TSU_AL.length;i++) TSU_IDX[TSU_AL[i]]=i;
+function tsuDecodificar(txt){
+    const out=[];
+    for(const cad of txt.split('.')){
+        let i=0;
+        const leer=()=>{ let z=0,sh=0,c; do{ c=TSU_IDX[cad[i++]]; z|=(c&31)<<sh; sh+=5; }while(c&32);
+                         return (z&1) ? -((z+1)>>1) : (z>>1); };
+        const x0=leer(), y0=leer(), x1=leer(), y1=leer(), n=leer();
+        const c=new Int32Array(n*2); let px=0, py=0;
+        for(let k=0;k<n;k++){ px+=leer(); py+=leer(); c[k*2]=px; c[k*2+1]=py; }
+        out.push({x0,y0,x1,y1,c});
+    }
+    return out;
+}
+function cargarTierra(){
+    if(tierraPolis) return Promise.resolve(tierraPolis);
+    if(tierraCargando) return tierraCargando;
+    tierraCargando = fetch('tierra.txt')
+        .then(r=>r.ok?r.text():Promise.reject(new Error('http '+r.status)))
+        .then(txt=>{ tierraPolis=tsuDecodificar(txt); return tierraPolis; })
+        .catch(()=>null);
+    return tierraCargando;
+}
+// Punto dentro de poligono, en centesimas de grado (la mascara viene en enteros).
+function enTierra(lon, lat){
+    if(!tierraPolis) return null;
+    const X=lon*100, Y=lat*100;
+    for(const p of tierraPolis){
+        if(X<p.x0||X>p.x1||Y<p.y0||Y>p.y1) continue;
+        let dentro=false; const c=p.c, n=c.length/2;
+        for(let i=0,j=n-1;i<n;j=i++){
+            const xi=c[i*2], yi=c[i*2+1], xj=c[j*2], yj=c[j*2+1];
+            if(((yi>Y)!==(yj>Y)) && (X < (xj-xi)*(Y-yi)/(yj-yi)+xi)) dentro=!dentro;
+        }
+        if(dentro) return true;
+    }
+    return false;
+}
+// Marino o costero: el epicentro en el mar, o en tierra pero con mar a menos de 40 km
+// (una ruptura que empieza en la costa puede levantar agua igual).
+function tocaElMar(lat, lon){
+    if(enTierra(lon,lat)===false) return true;
+    const dLat=TSU_ANILLO_KM/111, dLon=TSU_ANILLO_KM/(111*Math.max(0.15,Math.cos(lat*Math.PI/180)));
+    for(let a=0;a<8;a++){
+        const ang=a*Math.PI/4;
+        if(enTierra(lon+dLon*Math.cos(ang), lat+dLat*Math.sin(ang))===false) return true;
+    }
+    return false;
+}
+// 0 = nada que senalar; 1 local; 2 regional; 3 oceanico.
+function nivelTsunami(s){
+    if(!(s.mag>=TSU_MINMAG)) return 0;
+    if(isFinite(s.prof) && s.prof>TSU_MAXPROF) return 0;
+    if(!(isFinite(s.lat)&&isFinite(s.lon))) return 0;
+    if(!tocaElMar(s.lat,s.lon)) return 0;
+    let n = s.mag>=7.9 ? 3 : s.mag>=7.0 ? 2 : 1;
+    if(s.tsuUsgs && n<2) n=2;      // si el propio USGS lo marca, no lo rebajamos
+    return n;
+}
+function textoTsunami(n){ return n>=3?t('tsu_oceanico') : n>=2?t('tsu_regional') : t('tsu_local'); }
+
+// Se evalua cuando ya hay lista: si hace falta la mascara, se descarga y se repinta.
+let tsuAvisados=new Set();
+function evaluarTsunami(lista){
+    const cand=lista.filter(s=>s.mag>=TSU_MINMAG && s.tsu===undefined);
+    if(!cand.length) return;
+    cargarTierra().then(ok=>{
+        if(!ok) return;
+        for(const s of cand){
+            s.tsu=nivelTsunami(s);
+            if(s.tsu>0 && !tsuAvisados.has(s.id) && !primeraCarga){ tsuAvisados.add(s.id); avisoTsunami(s); }
+            else if(s.tsu>0) tsuAvisados.add(s.id);
+        }
+        pintar(lista);
+    });
+}
+function avisoTsunami(s){
+    const b=document.getElementById('alerta-tsunami');
+    const txt=`🌊 ${textoTsunami(s.tsu)} — M ${s.mag.toFixed(1)} · ${s.loc}`;
+    b.innerHTML = esc(txt) + ` · <a href="${TSU_OFICIAL}" target="_blank" rel="noopener" style="color:#fff;text-decoration:underline">`
+                + esc(t('tsu_oficial')) + '</a>';
+    b.style.display='block';
+    hacerSonarAlarma();
+    avisar('🌊 '+textoTsunami(s.tsu), txt);
+}
+
 // ---- Alarma ----
 function hacerSonarAlarma(){
     if(!audioCtx) return;
@@ -1283,6 +1386,7 @@ async function fetchUSGS(){
         return d.features.filter(q=>q.properties.mag!=null).map(q=>({
             fuente:'USGS', mag:q.properties.mag, loc:q.properties.place||'—',
             ms:q.properties.time, prof:q.geometry?.coordinates?.[2],
+            tsuUsgs:q.properties.tsunami===1,
             lon:q.geometry?.coordinates?.[0], lat:q.geometry?.coordinates?.[1],
             id:'usgs-'+q.id
         }));
@@ -1558,6 +1662,7 @@ function pintar(sismos){
             <div class="info">
                 <div class="loc">${esc(s.loc)}</div>
                 <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} ${t('prof')}`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span>${s.prelim?` · <span style="color:#ffb300">${esc(t('sin_confirmar'))}</span>`:''} · 🌡️</div>
+                ${s.tsu?`<div class="meta" style="color:#4fc3f7">${esc(t('tsu_badge'))} · ${esc(textoTsunami(s.tsu))}</div>`:''}
             </div></div>`;
     }).join('');
 }
@@ -1651,6 +1756,7 @@ function refrescar(){
     primeraCarga=false;
     pintar(todos);
     actualizarMapa(todos);
+    evaluarTsunami(todos);
 }
 
 async function chequear(){
