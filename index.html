@@ -697,6 +697,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
         .paso-tit { font-size:17px; font-weight:bold; line-height:1.35; }
         .paso-est { font-size:15px; line-height:1.45; margin-top:4px; color:#cfd8dc; }
         .paso .modo-btn { font-size:16px; padding:12px; margin-top:8px; }
+        #replicas-cabecera { background:#1c2530; border-left:4px solid #ffca28; border-radius:8px;
+                             padding:10px 12px; margin:6px 0 12px; line-height:1.4; }
+        #replicas-cabecera .rep-que { font-size:13px; color:#90a4ae; text-transform:uppercase;
+                                      letter-spacing:.4px; display:block; }
+        #replicas-cabecera .rep-sismo { font-size:18px; font-weight:bold; }
+        #replicas-cabecera .rep-cuando { font-size:14px; color:#cfd8dc; display:block; margin-top:2px; }
+        .sismo .rep-marca { color:#ffca28; font-weight:bold; }
         .guia { display:flex; gap:14px; align-items:center; padding:14px 0; border-top:1px solid #2a2a2a; }
         .guia:first-of-type { border-top:none; }
         .guia-dibujo { flex:0 0 64px; height:64px; border-radius:14px; background:#eceff1; color:#102027;
@@ -872,6 +879,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
     <div id="replicas-panel" class="controls" style="display:none; margin-top:14px;">
         <label data-i18n="rep_titulo">Previsión de réplicas</label>
+        <div id="replicas-cabecera"></div>
         <div id="replicas-cuerpo"></div>
         <div class="hint" data-i18n="rep_nota" style="margin-top:8px;"></div>
     </div>
@@ -953,11 +961,12 @@ es:{
  umbral_hint:'⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.',
  mapa_titulo:'Mapa en tiempo real', lista_titulo:'Últimos movimientos',
  pausa:'El sistema está en pausa. Pulsa el botón rojo.', sin_sismos:'Sin sismos recientes en la zona.',
- prof:'km prof.', toca_temp:'Toca para ver la temperatura del epicentro',
+ prof:'km prof.', hace_dias:'hace {n} días', toca_temp:'Toca para ver la temperatura del epicentro',
  ahora:'ahora mismo', hace_min:'hace {n} min', hace_h:'hace {n} h',
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ rep_marca:'📉 La previsión de réplicas de abajo es de ESTE sismo',
  rep_titulo:'Previsión de réplicas', rep_principal:'Sismo principal', rep_prob24:'Probabilidad de una réplica en 24 h', rep_prob7:'Probabilidad de una réplica en 7 días', rep_mayor:'Réplica más fuerte esperada', rep_esperadas:'Réplicas esperadas', rep_observadas:'Réplicas ya registradas', rep_prox:'en las próximas 24 h', rep_nota:'Cálculo estadístico hecho en tu teléfono con las leyes de Omori-Utsu, Båth y el modelo genérico de Reasenberg-Jones. Dice cuántas réplicas cabe esperar, NO predice ninguna en concreto ni dice cuándo. Las réplicas fuertes pueden derribar lo que el sismo principal dejó tocado: no entres en edificios dañados.',
  tsu_badge:'🌊 Riesgo de tsunami', tsu_local:'Posible tsunami local en la costa cercana', tsu_regional:'Riesgo de tsunami regional', tsu_oceanico:'Riesgo de tsunami en todo el océano', tsu_marino:'sismo marino', tsu_oficial:'Avisos oficiales', tsu_nota:'Indicador informativo calculado en tu teléfono a partir de la magnitud, la profundidad y si el epicentro cae en el mar. NO es un aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
@@ -991,11 +1000,12 @@ en:{
  umbral_hint:'⚠️ For the alarm to sound, keep this screen open and on. Small quakes always appear in the list; the audible alarm fires from the chosen magnitude.',
  mapa_titulo:'Live map', lista_titulo:'Latest earthquakes',
  pausa:'The system is paused. Press the red button.', sin_sismos:'No recent earthquakes in the area.',
- prof:'km deep', toca_temp:'Tap to see the epicenter temperature',
+ prof:'km deep', hace_dias:'{n} days ago', toca_temp:'Tap to see the epicenter temperature',
  ahora:'just now', hace_min:'{n} min ago', hace_h:'{n} h ago',
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ rep_marca:'📉 The aftershock forecast below is for THIS quake',
  rep_titulo:'Aftershock forecast', rep_principal:'Main shock', rep_prob24:'Chance of an aftershock within 24 h', rep_prob7:'Chance of an aftershock within 7 days', rep_mayor:'Largest expected aftershock', rep_esperadas:'Expected aftershocks', rep_observadas:'Aftershocks already recorded', rep_prox:'in the next 24 h', rep_nota:'Statistical estimate computed on your phone with the Omori-Utsu and Båth laws and the generic Reasenberg-Jones model. It says how many aftershocks to expect, it does NOT predict any particular one nor when it will happen. Strong aftershocks can bring down what the main shock weakened: do not enter damaged buildings.',
  tsu_badge:'🌊 Tsunami risk', tsu_local:'Possible local tsunami on the nearby coast', tsu_regional:'Regional tsunami risk', tsu_oceanico:'Ocean-wide tsunami risk', tsu_marino:'offshore earthquake', tsu_oficial:'Official alerts', tsu_nota:'Informative indicator computed on your phone from magnitude, depth and whether the epicentre falls at sea. It is NOT an official tsunami warning.',
  capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
@@ -1029,11 +1039,12 @@ it:{
  umbral_hint:"⚠️ Perché l'allarme suoni, tieni questo schermo aperto e acceso. I terremoti piccoli compaiono sempre nella lista; l'allarme sonoro scatta dalla magnitudo scelta.",
  mapa_titulo:'Mappa in tempo reale', lista_titulo:'Ultimi terremoti',
  pausa:'Il sistema è in pausa. Premi il pulsante rosso.', sin_sismos:'Nessun terremoto recente nella zona.',
- prof:'km prof.', toca_temp:"Tocca per vedere la temperatura dell'epicentro",
+ prof:'km prof.', hace_dias:'{n} giorni fa', toca_temp:"Tocca per vedere la temperatura dell'epicentro",
  ahora:'proprio ora', hace_min:'{n} min fa', hace_h:'{n} h fa',
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ rep_marca:'📉 La previsione delle repliche qui sotto è di QUESTA scossa',
  rep_titulo:'Previsione delle repliche', rep_principal:'Scossa principale', rep_prob24:'Probabilità di una replica entro 24 h', rep_prob7:'Probabilità di una replica entro 7 giorni', rep_mayor:'Replica più forte attesa', rep_esperadas:'Repliche attese', rep_observadas:'Repliche già registrate', rep_prox:'nelle prossime 24 h', rep_nota:'Stima statistica calcolata sul tuo telefono con le leggi di Omori-Utsu e Båth e il modello generico di Reasenberg-Jones. Dice quante repliche aspettarsi, NON ne predice nessuna in particolare né quando. Le repliche forti possono far crollare ciò che la scossa principale ha lesionato: non entrare in edifici danneggiati.',
  tsu_badge:'🌊 Rischio tsunami', tsu_local:'Possibile tsunami locale sulla costa vicina', tsu_regional:'Rischio di tsunami regionale', tsu_oceanico:'Rischio di tsunami su tutto l\'oceano', tsu_marino:'sisma in mare', tsu_oficial:'Avvisi ufficiali', tsu_nota:'Indicatore informativo calcolato sul tuo telefono a partire da magnitudo, profondità e se l\'epicentro cade in mare. NON è un allerta tsunami ufficiale.',
  capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
@@ -1067,11 +1078,12 @@ pt:{
  umbral_hint:'⚠️ Para o alarme tocar, mantenha esta tela aberta e ligada. Os sismos pequenos sempre aparecem na lista; o alarme sonoro dispara a partir da magnitude escolhida.',
  mapa_titulo:'Mapa em tempo real', lista_titulo:'Últimos sismos',
  pausa:'O sistema está em pausa. Pressione o botão vermelho.', sin_sismos:'Sem sismos recentes na zona.',
- prof:'km prof.', toca_temp:'Toque para ver a temperatura do epicentro',
+ prof:'km prof.', hace_dias:'há {n} dias', toca_temp:'Toque para ver a temperatura do epicentro',
  ahora:'agora mesmo', hace_min:'há {n} min', hace_h:'há {n} h',
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ rep_marca:'📉 A previsão de réplicas abaixo é DESTE sismo',
  rep_titulo:'Previsão de réplicas', rep_principal:'Sismo principal', rep_prob24:'Probabilidade de uma réplica em 24 h', rep_prob7:'Probabilidade de uma réplica em 7 dias', rep_mayor:'Réplica mais forte esperada', rep_esperadas:'Réplicas esperadas', rep_observadas:'Réplicas já registadas', rep_prox:'nas próximas 24 h', rep_nota:'Cálculo estatístico feito no seu telefone com as leis de Omori-Utsu e Båth e o modelo genérico de Reasenberg-Jones. Diz quantas réplicas se podem esperar, NÃO prevê nenhuma em concreto nem quando. As réplicas fortes podem derrubar o que o sismo principal deixou tocado: não entre em edifícios danificados.',
  tsu_badge:'🌊 Risco de tsunami', tsu_local:'Possível tsunami local na costa próxima', tsu_regional:'Risco de tsunami regional', tsu_oceanico:'Risco de tsunami em todo o oceano', tsu_marino:'sismo no mar', tsu_oficial:'Avisos oficiais', tsu_nota:'Indicador informativo calculado no seu telefone a partir da magnitude, da profundidade e de o epicentro cair no mar. NÃO é um aviso oficial de tsunami.',
  capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
@@ -1515,10 +1527,13 @@ function mostrarReplicas(lista){
     const Mm=principal.mag;
     const t0=Math.max(0, (Date.now()-principal.ms)/DIA_MS);   // dias transcurridos
     const M1=Math.max(2.5, Mm-1), M2=Math.max(2.5, Mm-2);
+    document.getElementById('replicas-cabecera').innerHTML =
+        '<span class="rep-que">'+esc(t('rep_principal'))+'</span>'+
+        '<span class="rep-sismo">M '+Mm.toFixed(1)+' · '+esc(principal.loc)+'</span>'+
+        '<span class="rep-cuando">'+esc(fechaHora(principal.ms))+' · '+esc(cuando(principal.ms))+'</span>';
     const fila=(et,v)=>`<div class="meta" style="display:flex;justify-content:space-between;gap:10px;padding:3px 0">
         <span>${esc(et)}</span><b style="color:#ffca28">${esc(v)}</b></div>`;
     document.getElementById('replicas-cuerpo').innerHTML =
-        fila(t('rep_principal'), 'M '+Mm.toFixed(1)+' · '+principal.loc) +
         fila(t('rep_prob24')+' M≥'+M1.toFixed(1), pct(probReplica(Mm,M1,t0,t0+1))) +
         fila(t('rep_prob7')+' M≥'+M1.toFixed(1), pct(probReplica(Mm,M1,t0,t0+7))) +
         fila(t('rep_esperadas')+' M≥'+M2.toFixed(1)+' '+t('rep_prox'),
@@ -1861,7 +1876,12 @@ function cuando(ms){
     if(min<1) return t('ahora');
     if(min<60) return t('hace_min').replace('{n}',min);
     const h=Math.round(min/60); if(h<24) return t('hace_h').replace('{n}',h);
-    return new Date(ms).toLocaleString('es-VE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const d=Math.round(h/24); if(d<=14) return t('hace_dias').replace('{n}',d);
+    return fechaHora(ms);
+}
+
+function fechaHora(ms){
+    return new Date(ms).toLocaleString('es-VE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
 let sismosPintados=[];   // los que están en pantalla, para saber cuál se tocó
@@ -1870,6 +1890,7 @@ function pintar(sismos){
     const cont=document.getElementById('lista');
     if(!sismos.length){ cont.innerHTML='<p style="text-align:center;color:var(--muted)">'+esc(t('sin_sismos'))+'</p>'; return; }
     sismosPintados=sismos.slice(0,6);
+    const principal=buscarPrincipal(sismos);   // el de la prevision de replicas, para que se sepa cual es
     cont.innerHTML = sismosPintados.map((s,i)=>{
         const c=claseMag(s.mag);
         return `<div class="sismo ${c} ${i===0?'primero':''}" onclick="verTemperatura(${i})" style="cursor:pointer" title="${esc(t('toca_temp'))}">
@@ -1878,6 +1899,7 @@ function pintar(sismos){
                 <div class="loc">${esc(s.loc)}</div>
                 <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} ${t('prof')}`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span>${s.prelim?` · <span style="color:#ffb300">${esc(t('sin_confirmar'))}</span>`:''} · 🌡️</div>
                 ${s.tsu?`<div class="meta" style="color:#4fc3f7">${esc(t('tsu_badge'))} · ${esc(textoTsunami(s.tsu))}</div>`:''}
+                ${s===principal?`<div class="meta rep-marca">${esc(t('rep_marca'))}</div>`:''}
             </div></div>`;
     }).join('');
 }
