@@ -718,6 +718,9 @@ svg.leaflet-image-layer.leaflet-interactive path {
         #mapa { height:340px; border-radius:10px; margin-top:6px; background:#22222a; z-index:0; }
         .leaflet-popup-content { font-size:.9em; }
         .leaflet-container { background:#22222a; }
+        .pie-labs { margin-top:14px; text-align:center; font-size:.8em; color:var(--muted); line-height:1.6; }
+        .pie-labs a { color:#90caf9; text-decoration:none; }
+        .pie-labs a:hover { text-decoration:underline; }
         .aviso-legal { background:#3a2e1a; border:1px solid #6b5424; color:#e8d9b8; font-size:.8em; line-height:1.45; padding:11px 13px; border-radius:8px; margin-bottom:14px; }
         .acordeon { background:var(--card); margin-top:14px; border-radius:8px; overflow:hidden; }
         .cabecera { padding:13px; cursor:pointer; font-weight:bold; border-bottom:1px solid var(--line); }
@@ -804,6 +807,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
         Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> y colaboradores.
         Gracias a todos ellos: sin sus datos abiertos esta app no existiría.
     </div>
+
+    <div class="pie-labs" data-i18n-html="labs"></div>
 </div>
 
 <script>
@@ -848,6 +853,7 @@ es:{
  ahora:'ahora mismo', hace_min:'hace {n} min', hace_h:'hace {n} h',
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
+ labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.',
@@ -875,6 +881,7 @@ en:{
  ahora:'just now', hace_min:'{n} min ago', hace_h:'{n} h ago',
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
+ labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
  temp_fuente:'Surface temperature (TS, °C) — data from the NASA POWER project (power.larc.nasa.gov). Exploratory comparison: science has not shown that temperature predicts earthquakes.',
@@ -902,6 +909,7 @@ it:{
  ahora:'proprio ora', hace_min:'{n} min fa', hace_h:'{n} h fa',
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
+ labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
  temp_fuente:'Temperatura superficiale (TS, °C) — dati del progetto NASA POWER (power.larc.nasa.gov). Confronto esplorativo: la scienza non ha dimostrato che la temperatura preveda i terremoti.',
@@ -929,6 +937,7 @@ pt:{
  ahora:'agora mesmo', hace_min:'há {n} min', hace_h:'há {n} h',
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
+ labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superfície (TS, °C) — dados do projeto NASA POWER (power.larc.nasa.gov). Comparação exploratória: a ciência não demonstrou que a temperatura preveja sismos.',
