@@ -776,6 +776,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div id="mapa"></div>
 
     <h2 class="sec" data-i18n="lista_titulo">Últimos movimientos</h2>
+    <div id="alerta-banner" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#b71c1c;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
     <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
     <div id="temp-panel" class="controls" style="display:none; margin-top:14px;">
@@ -832,7 +833,7 @@ const I18N={
 es:{
  doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigilada',
  titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
- fuentes_vzla:'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_vzla:'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) + EMSC (en vivo) · Temperatura: NASA POWER',
  fuentes_mundo:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.',
  modo_hint_mundo:'Mundo: sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
@@ -858,7 +859,7 @@ es:{
 en:{
  doc_title:'Seismic Monitor', idioma_label:'Language', zona_label:'Watched area',
  titulo_vzla:'🌎 Seismic Monitor — Venezuela', titulo_mundo:'🌍 Seismic Monitor — World',
- fuentes_vzla:'Official sources: USGS (USA) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
+ fuentes_vzla:'Official sources: USGS (USA) + FUNVISIS (Venezuela) + EMSC (live) · Temperature: NASA POWER',
  fuentes_mundo:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
  modo_hint_vzla:'Venezuela: everything that moves in the country and its coast, however small.',
  modo_hint_mundo:'World: earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
@@ -884,7 +885,7 @@ en:{
 it:{
  doc_title:'Monitor Sismico', idioma_label:'Lingua', zona_label:'Zona sorvegliata',
  titulo_vzla:'🌎 Monitor Sismico — Venezuela', titulo_mundo:'🌍 Monitor Sismico — Mondo',
- fuentes_vzla:'Fonti ufficiali: USGS (USA) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_vzla:'Fonti ufficiali: USGS (USA) + FUNVISIS (Venezuela) + EMSC (in diretta) · Temperatura: NASA POWER',
  fuentes_mundo:'Fonti ufficiali: USGS (USA) + EMSC (Europa, in diretta) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: tutto ciò che si muove nel paese e sulla sua costa, per quanto piccolo.',
  modo_hint_mundo:'Mondo: terremoti di tutto il pianeta da magnitudo {mag}, in diretta via EMSC appena un ente li pubblica.',
@@ -910,7 +911,7 @@ it:{
 pt:{
  doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigiada',
  titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
- fuentes_vzla:'Fontes oficiais: USGS (EUA) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_vzla:'Fontes oficiais: USGS (EUA) + FUNVISIS (Venezuela) + EMSC (ao vivo) · Temperatura: NASA POWER',
  fuentes_mundo:'Fontes oficiais: USGS (EUA) + EMSC (Europa, ao vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint_vzla:'Venezuela: tudo o que se move no país e na sua costa, por menor que seja.',
  modo_hint_mundo:'Mundo: sismos de todo o planeta a partir da magnitude {mag}, ao vivo via EMSC assim que qualquer agência os publica.',
@@ -987,8 +988,7 @@ function pintarModo(){
     document.getElementById('hint-modo').textContent = modoMundo
         ? t('modo_hint_mundo').replace('{mag}', MUNDO_MINMAG.toFixed(1))
         : t('modo_hint_vzla');
-    const be = document.getElementById('status-emsc');
-    if(be) be.style.display = modoMundo ? 'inline-block' : 'none';
+
 }
 function cambiarModo(aMundo){
     if(modoMundo === !!aMundo) return;
@@ -999,8 +999,7 @@ function cambiarModo(aMundo){
     idsVistos = new Set(); vistosRec = []; sismosEnVivo = []; ultimoSondeo = [];
     primeraCarga = true;
     encuadrarMapa();
-    if(modoMundo) abrirEmsc(); else cerrarEmsc();
-    if(monitoreoActivo) chequear();
+    if(monitoreoActivo){ abrirEmsc(); chequear(); }
 }
 function initModo(){
     let guardado = null;
@@ -1025,9 +1024,17 @@ function hacerSonarAlarma(){
     }
     if(navigator.vibrate) navigator.vibrate([400,150,400,150,400]);
 }
-function alarmaVisual(){
+let alertaTimer=null;
+function alarmaVisual(s){
     document.body.classList.add('alerta-roja');
     setTimeout(()=>document.body.classList.remove('alerta-roja'),10000);
+    if(s){
+        const b=document.getElementById('alerta-banner');
+        b.textContent=`⚠️ M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}`;
+        b.style.display='block';
+        clearTimeout(alertaTimer);
+        alertaTimer=setTimeout(()=>{ b.style.display='none'; },60000);
+    }
 }
 
 // ---- Wake Lock (evita que la pantalla se duerma y congele el monitoreo) ----
@@ -1121,7 +1128,7 @@ function sismoDesdeEmsc(msg){
              id:'emsc-'+(p.unid||p.source_id||ms) };
 }
 function abrirEmsc(){
-    if(!modoMundo || !monitoreoActivo) return;
+    if(!monitoreoActivo) return;
     if(wsEmsc && (wsEmsc.readyState===WebSocket.CONNECTING || wsEmsc.readyState===WebSocket.OPEN)) return;
     wsCerradoAdrede=false;
     try{ wsEmsc=new WebSocket(EMSC_WS); }
@@ -1130,13 +1137,18 @@ function abrirEmsc(){
     wsEmsc.onmessage=ev=>{
         let m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
         const s=sismoDesdeEmsc(m);
-        if(!s || s.mag < MUNDO_MINMAG) return;
+        if(!s) return;
+        // Mundo: desde la magnitud fijada. Venezuela: cualquier sismo dentro de la caja.
+        if(modoMundo){ if(s.mag < MUNDO_MINMAG) return; }
+        else if(!(isFinite(s.lat)&&isFinite(s.lon)
+            && s.lat>=VZLA_BBOX.minLat && s.lat<=VZLA_BBOX.maxLat
+            && s.lon>=VZLA_BBOX.minLon && s.lon<=VZLA_BBOX.maxLon)) return;
         // una revisión del mismo sismo (action "update") reemplaza a la anterior, no se duplica
         sismosEnVivo=[s, ...sismosEnVivo.filter(x=>x.id!==s.id)].slice(0,60);
         refrescar();
     };
     wsEmsc.onclose=()=>{
-        if(wsCerradoAdrede || !modoMundo || !monitoreoActivo) return;
+        if(wsCerradoAdrede || !monitoreoActivo) return;
         setBadge('status-emsc',false,t('emsc_rec'));
         setTimeout(abrirEmsc, wsEspera);
         wsEspera=Math.min(wsEspera*2, 60000);   // reintento con espera creciente, sin machacar
@@ -1311,7 +1323,7 @@ function refrescar(){
     // ¿algo nuevo por encima del umbral? -> alarma (nunca en la primera carga)
     if(!primeraCarga){
         const nuevosFuertes=todos.filter(s=>!yaVisto(s) && s.mag>=umbralAlarma);
-        if(nuevosFuertes.length){ hacerSonarAlarma(); alarmaVisual(); }
+        if(nuevosFuertes.length){ hacerSonarAlarma(); alarmaVisual(nuevosFuertes[0]); }
     }
     crudos.forEach(marcarVisto);
     primeraCarga=false;
