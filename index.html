@@ -795,7 +795,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <h2 class="sec" data-i18n="mapa_titulo">Mapa en tiempo real</h2>
+    <div class="modo-tabs" style="margin:10px 0 6px;">
+        <button id="capa-placas" class="modo-btn" onclick="alternarCapa('placas')" data-i18n="capa_placas">🗺️ Placas</button>
+        <button id="capa-fallas" class="modo-btn" onclick="alternarCapa('fallas')" data-i18n="capa_fallas">⛓️ Fallas</button>
+    </div>
     <div id="mapa"></div>
+    <div id="leyenda-capas" class="hint" style="display:none;margin-top:6px;line-height:1.7;">
+        <span style="color:#ba68c8">━━</span> <span data-i18n="leyenda_placas">Borde de placa tectónica</span> ·
+        <span style="color:#ef5350">━</span> <span data-i18n="leyenda_inversa">Falla inversa / subducción</span> ·
+        <span style="color:#ffca28">━</span> <span data-i18n="leyenda_rumbo">Falla de rumbo</span> ·
+        <span style="color:#4fc3f7">━</span> <span data-i18n="leyenda_normal">Falla normal</span>
+    </div>
 
     <h2 class="sec" data-i18n="lista_titulo">Últimos movimientos</h2>
     <div id="alerta-banner" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#b71c1c;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
@@ -873,6 +883,7 @@ es:{
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Fallas', leyenda_placas:'Borde de placa tectónica', leyenda_inversa:'Falla inversa / subducción', leyenda_rumbo:'Falla de rumbo', leyenda_normal:'Falla normal', capa_cargando:'Cargando la capa…', capa_error:'No se pudo cargar la capa.', borde_placa:'Borde de placa', falla_activa:'Falla activa',
  pwa_label:'App y avisos', instalar_btn:'⬇️ Instalar la app en el teléfono', avisos_btn:'🔔 Activar los avisos', pwa_hint:'Instálala y recibirás el aviso aunque la tengas de fondo. Los avisos se crean en el propio teléfono: no hay servidor de notificaciones ni cuenta que registrar.', avisos_on:'🔔 Avisos activos: te llegará el aviso aunque estés en otra app.', avisos_no:'Este navegador no permite avisos. En iPhone, primero instala la app desde Compartir → Añadir a inicio.', avisos_negado:'Avisos bloqueados. Actívalos en los ajustes del navegador para este sitio.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detectado',
  sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
@@ -883,7 +894,7 @@ es:{
  acc_ios_c:'Toca "Compartir" (el cuadro con la flecha) → "Añadir a pantalla de inicio". Ábrela desde el icono para que ocupe toda la pantalla.',
  acc_and_t:'🤖 Instalar en Android (Chrome)', acc_and_c:'Toca los tres puntos (⋮) → "Instalar aplicación".',
  aviso:'⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo. <b>No es un sistema oficial de alerta temprana.</b> Usa datos públicos de USGS y FUNVISIS que pueden retrasarse, fallar o estar incompletos. <b>No sustituye a Protección Civil ni a los canales oficiales.</b> No garantiza avisar de todos los sismos ni funcionar sin conexión. Úsala bajo tu propia responsabilidad.',
- creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servicio Geológico de EE.UU.), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> y colaboradores. Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
+ creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servicio Geológico de EE.UU.), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> y colaboradores. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Fallas activas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
 },
 en:{
  doc_title:'Seismic Monitor', idioma_label:'Language', zona_label:'Watched area',
@@ -903,6 +914,7 @@ en:{
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ capa_placas:'🗺️ Plates', capa_fallas:'⛓️ Faults', leyenda_placas:'Tectonic plate boundary', leyenda_inversa:'Reverse fault / subduction', leyenda_rumbo:'Strike-slip fault', leyenda_normal:'Normal fault', capa_cargando:'Loading the layer…', capa_error:'The layer could not be loaded.', borde_placa:'Plate boundary', falla_activa:'Active fault',
  pwa_label:'App and alerts', instalar_btn:'⬇️ Install the app on your phone', avisos_btn:'🔔 Turn on alerts', pwa_hint:'Install it and you will get the alert even with the app in the background. Alerts are created on the phone itself: no notification server, no account to register.', avisos_on:'🔔 Alerts on: you will be warned even while using another app.', avisos_no:'This browser does not allow alerts. On iPhone, first install the app from Share → Add to Home Screen.', avisos_negado:'Alerts blocked. Turn them on in the browser settings for this site.', instalada:'✅ App installed.', aviso_sismo:'Earthquake detected',
  sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'The phone detects its own vibration. If it shakes with an earthquake pattern while a quake is reported nearby, the alarm fires instantly. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
@@ -913,7 +925,7 @@ en:{
  acc_ios_c:'Tap "Share" (the box with the arrow) → "Add to Home Screen". Open it from the icon so it fills the screen.',
  acc_and_t:'🤖 Install on Android (Chrome)', acc_and_c:'Tap the three dots (⋮) → "Install app".',
  aviso:'⚠️ <b>Notice:</b> Free, <b>non-profit</b> tool, for information only. <b>It is not an official early-warning system.</b> It uses public USGS and FUNVISIS data that may be delayed, fail or be incomplete. <b>It does not replace Civil Protection or official channels.</b> It does not guarantee warning of every earthquake or working offline. Use at your own risk.',
- creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Thanks to all of them: without their open data this app would not exist.'
+ creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Tectonic plates: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Active faults: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Thanks to all of them: without their open data this app would not exist.'
 },
 it:{
  doc_title:'Monitor Sismico', idioma_label:'Lingua', zona_label:'Zona sorvegliata',
@@ -933,6 +945,7 @@ it:{
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
  pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
  sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
@@ -943,7 +956,7 @@ it:{
  acc_ios_c:'Tocca "Condividi" (il riquadro con la freccia) → "Aggiungi alla schermata Home". Aprila dall\'icona così occupa tutto lo schermo.',
  acc_and_t:'🤖 Installa su Android (Chrome)', acc_and_c:'Tocca i tre puntini (⋮) → "Installa app".',
  aviso:'⚠️ <b>Avviso:</b> strumento gratuito e <b>senza fini di lucro</b>, a carattere informativo. <b>Non è un sistema ufficiale di allerta precoce.</b> Usa dati pubblici di USGS e FUNVISIS che possono ritardare, fallire o essere incompleti. <b>Non sostituisce la Protezione Civile né i canali ufficiali.</b> Non garantisce di avvisare di tutti i terremoti né di funzionare offline. Usala sotto la tua responsabilità.',
- creditos:'📊 <b>Da dove vengono i dati:</b> terremoti da <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servizio Geologico degli USA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fondazione Venezuelana di Ricerche Sismologiche) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismologico Euro-Mediterraneo, in diretta). Temperatura da <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mappa © collaboratori di <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Grazie a tutti loro: senza i loro dati aperti questa app non esisterebbe.'
+ creditos:'📊 <b>Da dove vengono i dati:</b> terremoti da <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servizio Geologico degli USA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fondazione Venezuelana di Ricerche Sismologiche) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismologico Euro-Mediterraneo, in diretta). Temperatura da <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mappa © collaboratori di <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Placche tettoniche: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Faglie attive: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Grazie a tutti loro: senza i loro dati aperti questa app non esisterebbe.'
 },
 pt:{
  doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigiada',
@@ -963,6 +976,7 @@ pt:{
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
  pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
  sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
@@ -973,7 +987,7 @@ pt:{
  acc_ios_c:'Toque em "Compartilhar" (o quadro com a seta) → "Adicionar à Tela de Início". Abra pelo ícone para ocupar a tela inteira.',
  acc_and_t:'🤖 Instalar no Android (Chrome)', acc_and_c:'Toque nos três pontos (⋮) → "Instalar aplicativo".',
  aviso:'⚠️ <b>Aviso:</b> ferramenta gratuita e <b>sem fins lucrativos</b>, de caráter informativo. <b>Não é um sistema oficial de alerta precoce.</b> Usa dados públicos do USGS e da FUNVISIS que podem atrasar, falhar ou estar incompletos. <b>Não substitui a Proteção Civil nem os canais oficiais.</b> Não garante avisar de todos os sismos nem funcionar sem conexão. Use por sua própria conta e risco.',
- creditos:'📊 <b>De onde vêm os dados:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Serviço Geológico dos EUA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundação Venezuelana de Pesquisas Sismológicas) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterrâneo, ao vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Obrigado a todos eles: sem os seus dados abertos este app não existiria.'
+ creditos:'📊 <b>De onde vêm os dados:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Serviço Geológico dos EUA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundação Venezuelana de Pesquisas Sismológicas) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterrâneo, ao vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Falhas ativas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Obrigado a todos eles: sem os seus dados abertos este app não existiria.'
 }
 };
 function t(k){ return (I18N[idioma]&&I18N[idioma][k]) || I18N.es[k] || k; }
@@ -1436,7 +1450,73 @@ function crearMapa(){
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:10, minZoom:2, attribution:'© OpenStreetMap' }).addTo(mapa);
     capaSismos = L.layerGroup().addTo(mapa);
     encuadrarMapa();
+    restaurarCapas();
 }
+// ---- Capas geologicas: bordes de placa y fallas activas ----
+// Se descargan del propio sitio y solo cuando el usuario las enciende: son 150 KB que no
+// tiene por que pagar quien solo quiere ver si ha temblado. La eleccion se recuerda.
+const CAPAS_KEY='sismos-capas';
+const CAPAS_FICH={placas:'placas.json', fallas:'fallas.json'};
+let capasGeo={placas:null, fallas:null}, capasPuestas={placas:false, fallas:false}, capasCargando={};
+
+function colorFalla(tipo){
+    const x=String(tipo||'').toLowerCase();
+    if(x.includes('subduction')||x.includes('reverse')||x.includes('thrust')) return '#ef5350';
+    if(x.includes('normal')||x.includes('spreading')) return '#4fc3f7';
+    if(x.includes('dextral')||x.includes('sinistral')||x.includes('strike')) return '#ffca28';
+    return '#bdbdbd';
+}
+
+async function cargarCapa(cual){
+    if(capasGeo[cual]) return capasGeo[cual];
+    if(capasCargando[cual]) return null;
+    capasCargando[cual]=true;
+    try{
+        const r=await fetch(CAPAS_FICH[cual]);
+        if(!r.ok) throw new Error('http '+r.status);
+        const gj=await r.json();
+        capasGeo[cual] = (cual==='placas')
+            ? L.geoJSON(gj, {
+                style:{ color:'#ba68c8', weight:2.5, opacity:.85, dashArray:'6 4' },
+                onEachFeature:(f,l)=>l.bindPopup('<b>'+esc(t('borde_placa'))+'</b><br>'+esc(f.properties.n||''))
+              })
+            : L.geoJSON(gj, {
+                style:f=>({ color:colorFalla(f.properties.t), weight:2, opacity:.9 }),
+                onEachFeature:(f,l)=>l.bindPopup('<b>'+esc(f.properties.n||t('falla_activa'))+'</b><br>'+esc(String(f.properties.t||'').replace(/_/g,' ')))
+              });
+        return capasGeo[cual];
+    }catch(e){
+        return null;
+    }finally{
+        capasCargando[cual]=false;
+    }
+}
+
+async function alternarCapa(cual){
+    if(!mapa) crearMapa();
+    const btn=document.getElementById('capa-'+cual);
+    if(capasPuestas[cual]){
+        if(capasGeo[cual]) mapa.removeLayer(capasGeo[cual]);
+        capasPuestas[cual]=false; btn.classList.remove('on');
+    }else{
+        const capa=await cargarCapa(cual);
+        if(!capa){ btn.textContent=t('capa_error'); setTimeout(()=>{btn.textContent=t('capa_'+cual);},3000); return; }
+        capa.addTo(mapa);
+        capa.bringToBack();
+        capasPuestas[cual]=true; btn.classList.add('on');
+    }
+    document.getElementById('leyenda-capas').style.display =
+        (capasPuestas.placas||capasPuestas.fallas) ? 'block' : 'none';
+    try{ localStorage.setItem(CAPAS_KEY, JSON.stringify(capasPuestas)); }catch(e){}
+}
+
+// Al crear el mapa, restaurar las capas que el usuario dejo encendidas.
+function restaurarCapas(){
+    let g=null; try{ g=JSON.parse(localStorage.getItem(CAPAS_KEY)||'null'); }catch(e){}
+    if(!g) return;
+    ['placas','fallas'].forEach(c=>{ if(g[c] && !capasPuestas[c]) alternarCapa(c); });
+}
+
 // Encuadre según la zona vigilada: Venezuela de cerca, el planeta entero de lejos.
 function encuadrarMapa(){
     if(!mapa) return;
