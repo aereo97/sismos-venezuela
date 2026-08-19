@@ -775,6 +775,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
         </div>
     </div>
 
+    <div class="controls">
+        <label data-i18n="sensor_label">Tu teléfono como sensor</label>
+        <button id="btn-sensor" class="modo-btn" style="width:100%;margin-bottom:8px;" onclick="activarSensor()" data-i18n="sensor_btn">📳 Usar el movimiento del teléfono</button>
+        <div class="hint"><span id="sensor-estado" data-i18n="sensor_hint">El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.</span></div>
+    </div>
+
     <h2 class="sec" data-i18n="mapa_titulo">Mapa en tiempo real</h2>
     <div id="mapa"></div>
 
@@ -854,6 +860,7 @@ es:{
  pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
  emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Más proyectos de Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — cuestionarios y aprendizaje para colegios · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, su juego de exploración a oscuras.',
+ sensor_label:'Tu teléfono como sensor', sensor_btn:'📳 Usar el movimiento del teléfono', sensor_hint:'El teléfono detecta su propia vibración. Si tiembla con patrón de sismo y a la vez hay un sismo reportado cerca, la alarma salta al instante. La medida no sale del teléfono.', sensor_on:'📳 Sensor activo — vigilando el movimiento del teléfono.', sensor_no:'Este teléfono o navegador no deja leer el movimiento.', sensor_negado:'Permiso denegado: sin acceso al movimiento del teléfono.', sensor_temblor:'📳 Tu teléfono está temblando', sensor_confirmado:'¡SISMO! Tu teléfono tiembla y hay uno reportado cerca',
  posible_sismo:'Posible sismo sin confirmar (la gente lo ha sentido)', testimonios:'testimonios', sin_confirmar:'sin confirmar',
  temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.',
@@ -882,6 +889,7 @@ en:{
  pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
  emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
  labs:'🛠️ <b>More projects by Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quizzes and learning for schools · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, its game of exploring in the dark.',
+ sensor_label:'Your phone as a sensor', sensor_btn:'📳 Use the phone\'s motion', sensor_hint:'The phone detects its own vibration. If it shakes with an earthquake pattern while a quake is reported nearby, the alarm fires instantly. The reading never leaves your phone.', sensor_on:'📳 Sensor on — watching the phone\'s motion.', sensor_no:'This phone or browser will not give access to motion.', sensor_negado:'Permission denied: no access to the phone\'s motion.', sensor_temblor:'📳 Your phone is shaking', sensor_confirmado:'EARTHQUAKE! Your phone is shaking and one is reported nearby',
  posible_sismo:'Possible unconfirmed earthquake (people felt it)', testimonios:'reports', sin_confirmar:'unconfirmed',
  temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
  temp_fuente:'Surface temperature (TS, °C) — data from the NASA POWER project (power.larc.nasa.gov). Exploratory comparison: science has not shown that temperature predicts earthquakes.',
@@ -910,6 +918,7 @@ it:{
  pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
  emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
  labs:'🛠️ <b>Altri progetti di Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — quiz e apprendimento per le scuole · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, il suo gioco di esplorazione al buio.',
+ sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
  posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
  temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
  temp_fuente:'Temperatura superficiale (TS, °C) — dati del progetto NASA POWER (power.larc.nasa.gov). Confronto esplorativo: la scienza non ha dimostrato che la temperatura preveda i terremoti.',
@@ -938,6 +947,7 @@ pt:{
  pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
  emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
  labs:'🛠️ <b>Mais projetos da Aereo Labs</b><br><a href="https://clevermarkiq.co.uk" target="_blank" rel="noopener">ClevermarkIQ</a> — questionários e aprendizagem para escolas · <a href="https://clevermarkiq.co.uk/archivo-ciego" target="_blank" rel="noopener">Archivo Ciego</a>, o seu jogo de exploração no escuro.',
+ sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
  posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
  temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
  temp_fuente:'Temperatura de superfície (TS, °C) — dados do projeto NASA POWER (power.larc.nasa.gov). Comparação exploratória: a ciência não demonstrou que a temperatura preveja sismos.',
@@ -959,6 +969,10 @@ function aplicarIdioma(){
     ['es','en','it','pt'].forEach(l=>{ const b=document.getElementById('lang-'+l); if(b) b.classList.toggle('on', l===idioma); });
     const btn=document.getElementById('btn-activar');
     btn.textContent = monitoreoActivo ? t('monitoreando') : t('activar_btn');
+    if(sensorActivo){
+        document.getElementById('sensor-estado').textContent=t('sensor_on');
+        document.getElementById('btn-sensor').textContent=t('sensor_btn');
+    }
     if(monitoreoActivo){
         // la última comprobación se reescribe sola en el próximo chequeo; no la pisamos
     } else {
@@ -1023,6 +1037,88 @@ function initModo(){
     pintarModo();
 }
 
+// ---- El telefono como sensor (solo en este aparato: nada de esto se envia a ningun sitio) ----
+// Un sismo mueve el telefono con oscilacion sostenida de segundos; un golpe de bolsillo es un
+// pico seco que se apaga enseguida. Se exige movimiento sostenido antes de creerselo, y para
+// la alarma se pide ademas que alguna agencia reporte un sismo cerca en los ultimos minutos.
+const SENSOR_UMBRAL = 1.2;          // m/s2 por encima de la gravedad: temblor notable
+const SENSOR_VENTANA_MS = 6000;     // memoria corta de movimiento
+const SENSOR_SOSTENIDO_MS = 1500;   // tiempo minimo agitado para no confundirlo con un golpe
+const SENSOR_CRUCES_MIN = 8;        // oscilaciones (1-10 Hz): un golpe no oscila
+const SENSOR_CERCA_KM = 300;
+const SENSOR_RECIENTE_MS = 300000;  // 5 min
+
+let sensorActivo=false, sensorMuestras=[], sensorBase=9.81, sensorUltimoAviso=0, sensorSigno=0, sensorCruces=0;
+let miPos=null;   // solo en memoria de la pagina; nunca se envia
+
+async function activarSensor(){
+    if(sensorActivo) return;
+    if(typeof DeviceMotionEvent==='undefined'){ document.getElementById('sensor-estado').textContent=t('sensor_no'); return; }
+    try{
+        // iOS exige pedir el permiso desde un toque del usuario
+        if(typeof DeviceMotionEvent.requestPermission==='function'){
+            const r=await DeviceMotionEvent.requestPermission();
+            if(r!=='granted'){ document.getElementById('sensor-estado').textContent=t('sensor_negado'); return; }
+        }
+    }catch(e){ document.getElementById('sensor-estado').textContent=t('sensor_negado'); return; }
+    window.addEventListener('devicemotion', leerMovimiento);
+    sensorActivo=true;
+    const b=document.getElementById('btn-sensor'); b.classList.add('on');
+    document.getElementById('sensor-estado').textContent=t('sensor_on');
+    // posicion aproximada, solo para saber si el sismo reportado cae cerca. Se queda en el aparato.
+    if(navigator.geolocation) navigator.geolocation.getCurrentPosition(
+        pos=>{ miPos={lat:pos.coords.latitude, lon:pos.coords.longitude}; },
+        ()=>{}, {enableHighAccuracy:false, timeout:10000, maximumAge:600000});
+}
+
+function leerMovimiento(ev){
+    const a=ev.accelerationIncludingGravity; if(!a) return;
+    const mod=Math.hypot(a.x||0, a.y||0, a.z||0);
+    if(!isFinite(mod)) return;
+    sensorBase = sensorBase*0.98 + mod*0.02;      // la gravedad y la postura del telefono, suavizadas
+    const d = mod - sensorBase;
+    const ahora=Date.now();
+    // contar oscilaciones: un temblor cruza el cero muchas veces, un golpe casi ninguna
+    const signo = d>0.3 ? 1 : (d<-0.3 ? -1 : 0);
+    if(signo && signo!==sensorSigno){ sensorSigno=signo; sensorCruces++; }
+    sensorMuestras.push({ms:ahora, d:Math.abs(d)});
+    while(sensorMuestras.length && ahora-sensorMuestras[0].ms > SENSOR_VENTANA_MS){ sensorMuestras.shift(); }
+    evaluarTemblor(ahora);
+}
+
+function evaluarTemblor(ahora){
+    if(ahora - sensorUltimoAviso < 20000) return;                 // no repetir el aviso a cada muestra
+    const fuertes=sensorMuestras.filter(m=>m.d>SENSOR_UMBRAL);
+    if(fuertes.length<10) return;
+    const durada=fuertes[fuertes.length-1].ms - fuertes[0].ms;
+    if(durada < SENSOR_SOSTENIDO_MS) return;                      // pico seco: golpe, no sismo
+    if(sensorCruces < SENSOR_CRUCES_MIN) return;                  // no oscila: golpe, no sismo
+    sensorUltimoAviso=ahora; sensorCruces=0; sensorMuestras=[];
+    const cerca=sismoReportadoCerca(ahora);
+    if(cerca){ hacerSonarAlarma(); alarmaVisual(cerca, t('sensor_confirmado')); }
+    else{ avisoSensorSolo(); }
+}
+
+// ¿alguna agencia ha reportado un sismo cerca y hace poco? Con permiso de ubicacion se mide
+// la distancia real; sin el, basta con que sea de la zona vigilada.
+function sismoReportadoCerca(ahora){
+    const candidatos=[...sismosEnVivo, ...ultimoSondeo].filter(s=>ahora-s.ms < SENSOR_RECIENTE_MS);
+    if(!candidatos.length) return null;
+    if(!miPos) return candidatos.sort((a,b)=>b.ms-a.ms)[0];
+    const cerca=candidatos.filter(s=>{ const d=distKm(miPos,s); return isFinite(d) && d<=SENSOR_CERCA_KM; });
+    if(!cerca.length) return null;
+    return cerca.sort((a,b)=>b.ms-a.ms)[0];
+}
+
+function avisoSensorSolo(){
+    const b=document.getElementById('alerta-ambar');
+    b.textContent='📳 '+t('sensor_temblor');
+    b.style.display='block';
+    if(navigator.vibrate) navigator.vibrate([150,80,150]);
+    clearTimeout(ambarTimer);
+    ambarTimer=setTimeout(()=>{ b.style.display='none'; },60000);
+}
+
 // ---- Alarma ----
 function hacerSonarAlarma(){
     if(!audioCtx) return;
@@ -1040,12 +1136,12 @@ function hacerSonarAlarma(){
     if(navigator.vibrate) navigator.vibrate([400,150,400,150,400]);
 }
 let alertaTimer=null;
-function alarmaVisual(s){
+function alarmaVisual(s, titulo){
     document.body.classList.add('alerta-roja');
     setTimeout(()=>document.body.classList.remove('alerta-roja'),10000);
     if(s){
         const b=document.getElementById('alerta-banner');
-        b.textContent=`⚠️ M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}${s.prelim?' · '+t('sin_confirmar'):''}`;
+        b.textContent=(titulo?titulo+' — ':'⚠️ ')+`M ${s.mag.toFixed(1)} — ${s.loc} · ${cuando(s.ms)}${s.prelim?' · '+t('sin_confirmar'):''}`;
         b.style.display='block';
         clearTimeout(alertaTimer);
         alertaTimer=setTimeout(()=>{ b.style.display='none'; },60000);
