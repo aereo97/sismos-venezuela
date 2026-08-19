@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#1e1e24">
+    <meta name="theme-color" content="#111318">
     <meta name="referrer" content="no-referrer">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
@@ -679,85 +679,89 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </style>
     <title>Monitor Sísmico - Venezuela</title>
     <style>
-        :root { --bg:#1e1e24; --panel:#2a2a35; --card:#32323e; --line:#444; --txt:#fff; --muted:#9aa; }
+        :root { --bg:#111318; --panel:#1a1d25; --card:#232733; --line:#333a49; --txt:#f2f4f8; --muted:#98a2b6;
+                --amber:#ffca28; --ok:#4caf50; --rojo:#f44336; }
         * { box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg); color:var(--txt); margin:0; padding:16px; transition:background-color .5s; }
-        h1 { text-align:center; color:#ff6b6b; font-size:1.5em; margin:.2em 0; }
-        .autor { text-align:center; color:var(--muted); margin-bottom:16px; font-size:.85em; }
-        .container { max-width:820px; margin:auto; background:var(--panel); padding:18px; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,.5); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:var(--bg); color:var(--txt); margin:0; padding:18px 16px 24px; transition:background-color .5s; -webkit-font-smoothing:antialiased; }
+        h1 { text-align:center; color:var(--txt); font-size:1.7em; font-weight:700; letter-spacing:-.01em; margin:.1em 0 .15em; }
+        .autor { text-align:center; color:var(--muted); margin-bottom:18px; font-size:14px; }
+        .container { max-width:820px; margin:auto; background:var(--panel); padding:20px; border-radius:16px;
+                     border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.45); }
 
-        .btn-activar { background:#f44336; border:none; color:#fff; padding:15px 20px; display:block; width:100%; font-size:17px; margin-bottom:14px; cursor:pointer; border-radius:8px; font-weight:bold; animation:pulse 2s infinite; }
-        .btn-activar.on { background:#4caf50; animation:none; }
-        .paso { display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-top:1px solid #2a2a2a; }
+        .btn-activar { background:var(--rojo); border:none; color:#fff; padding:18px 20px; display:block; width:100%; font-size:19px; margin-bottom:16px; cursor:pointer; border-radius:12px; font-weight:bold; letter-spacing:.01em; animation:pulse 2s infinite; }
+        .btn-activar.on { background:var(--ok); animation:none; }
+        .paso { display:flex; gap:14px; align-items:flex-start; padding:14px 0; border-top:1px solid var(--line); }
         .paso:first-of-type { border-top:none; }
-        .paso-n { flex:0 0 34px; height:34px; line-height:34px; text-align:center; border-radius:50%;
-                  background:#37474f; color:#fff; font-weight:bold; font-size:18px; }
-        .paso.ok .paso-n { background:#4caf50; }
+        .paso-n { flex:0 0 36px; height:36px; line-height:36px; text-align:center; border-radius:50%;
+                  background:#3b4657; color:#fff; font-weight:bold; font-size:18px; }
+        .paso.ok .paso-n { background:var(--ok); }
         .paso-cuerpo { flex:1; min-width:0; }
         .paso-tit { font-size:17px; font-weight:bold; line-height:1.35; }
-        .paso-est { font-size:15px; line-height:1.45; margin-top:4px; color:#cfd8dc; }
+        .paso-est { font-size:15px; line-height:1.5; margin-top:5px; color:#c3ccdb; }
         .paso .modo-btn { font-size:16px; padding:12px; margin-top:8px; }
-        #replicas-cabecera { background:#1c2530; border-left:4px solid #ffca28; border-radius:8px;
-                             padding:10px 12px; margin:6px 0 12px; line-height:1.4; }
-        #replicas-cabecera .rep-que { font-size:13px; color:#90a4ae; text-transform:uppercase;
-                                      letter-spacing:.4px; display:block; }
+        #replicas-cabecera { background:#1c2431; border-left:4px solid var(--amber); border-radius:10px;
+                             padding:12px 14px; margin:8px 0 14px; line-height:1.45; }
+        #replicas-cabecera .rep-que { font-size:13px; color:var(--muted); text-transform:uppercase;
+                                      letter-spacing:.5px; display:block; }
         #replicas-cabecera .rep-sismo { font-size:18px; font-weight:bold; }
-        #replicas-cabecera .rep-cuando { font-size:14px; color:#cfd8dc; display:block; margin-top:2px; }
-        .sismo .rep-marca { color:#ffca28; font-weight:bold; }
-        .guia { display:flex; gap:14px; align-items:center; padding:14px 0; border-top:1px solid #2a2a2a; }
+        #replicas-cabecera .rep-cuando { font-size:14px; color:#c3ccdb; display:block; margin-top:3px; }
+        .sismo .rep-marca { color:var(--amber); font-weight:bold; }
+        .guia { display:flex; gap:14px; align-items:center; padding:15px 0; border-top:1px solid var(--line); }
         .guia:first-of-type { border-top:none; }
-        .guia-dibujo { flex:0 0 64px; height:64px; border-radius:14px; background:#eceff1; color:#102027;
+        .guia-dibujo { flex:0 0 64px; height:64px; border-radius:16px; background:#eceff1; color:#102027;
                        display:flex; align-items:center; justify-content:center; }
         .guia-dibujo svg { width:34px; height:34px; }
         .dibujo-add { flex:0 0 auto; min-width:64px; padding:0 4px; background:transparent; }
         .pastilla-add { background:#0a84ff; color:#fff; font-size:15px; font-weight:bold;
                         padding:6px 14px; border-radius:999px; }
-        .guia-txt { flex:1; font-size:18px; line-height:1.4; }
-        .guia-txt b { display:block; font-size:15px; color:#90a4ae; font-weight:bold; margin-bottom:2px; }
+        .guia-txt { flex:1; font-size:18px; line-height:1.45; }
+        .guia-txt b { display:block; font-size:15px; color:var(--muted); font-weight:bold; margin-bottom:3px; }
         @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(244,67,54,.7)} 50%{box-shadow:0 0 0 10px rgba(244,67,54,0)} 100%{box-shadow:0 0 0 0 rgba(244,67,54,0)} }
 
-        .status-bar { text-align:center; background:var(--card); padding:12px; border-radius:8px; margin-bottom:14px; border:1px solid var(--line); }
-        .status-badge { padding:5px 10px; border-radius:20px; margin:4px; font-size:.82em; display:inline-block; font-weight:bold; background:#555; }
-        .active { background:#2e7d32 !important; }
-        .baderr { background:#c62828 !important; }
+        .status-bar { text-align:center; background:var(--card); padding:12px 10px; border-radius:12px; margin-bottom:16px; border:1px solid var(--line); }
+        .status-badge { padding:7px 13px; border-radius:999px; margin:4px 3px; font-size:14px; display:inline-block; font-weight:bold; background:#39404f; color:#dbe2ee; }
+        .active { background:#2e7d32 !important; color:#fff !important; }
+        .baderr { background:#c62828 !important; color:#fff !important; }
 
-        .controls { background:var(--card); padding:12px 14px; border-radius:8px; margin-bottom:14px; border:1px solid var(--line); }
-        .controls label { font-size:.9em; display:block; margin-bottom:6px; }
+        .controls { background:var(--card); padding:14px 16px; border-radius:12px; margin-bottom:16px; border:1px solid var(--line); }
+        .controls label { font-size:16px; display:block; margin-bottom:8px; }
         .controls .val { color:#ffb74d; font-weight:bold; }
-        input[type=range] { width:100%; }
-        .hint { font-size:.78em; color:var(--muted); margin-top:8px; line-height:1.4; }
+        input[type=range] { width:100%; accent-color:#ffb74d; }
+        .hint { font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.5; }
 
         .modo-tabs { display:flex; gap:8px; }
-        .modo-btn { flex:1; padding:10px 8px; font-size:.95em; border-radius:8px; cursor:pointer;
-                    background:#1e1e1e; color:var(--muted); border:1px solid var(--line); }
-        .modo-btn.on { background:#2e4a2e; color:#e8f5e9; border-color:#4caf50; font-weight:bold; }
+        .modo-btn { flex:1; padding:12px 8px; font-size:16px; border-radius:10px; cursor:pointer;
+                    background:#1a1d25; color:#c3ccdb; border:1px solid var(--line); }
+        .modo-btn.on { background:#28402a; color:#e8f5e9; border-color:var(--ok); font-weight:bold; }
 
-        .sismo { background:var(--card); padding:12px 14px; border-radius:10px; border-left:5px solid #4caf50; margin-top:10px; display:flex; align-items:center; gap:14px; }
+        .sismo { background:var(--card); padding:13px 15px; border-radius:12px; border-left:5px solid var(--ok); margin-top:10px; display:flex; align-items:center; gap:14px; border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
         .sismo.med { border-left-color:#ff9800; }
-        .sismo.high { border-left-color:#f44336; }
+        .sismo.high { border-left-color:var(--rojo); }
         .mag { font-size:1.5em; font-weight:bold; min-width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
         .mag.low{background:#4caf50}.mag.med{background:#ff9800}.mag.high{background:#f44336}
         .sismo .info { flex:1; min-width:0; }
-        .sismo .loc { font-weight:bold; font-size:1em; }
-        .sismo .meta { font-size:.82em; color:var(--muted); margin-top:3px; }
-        .src { font-size:.72em; padding:2px 7px; border-radius:4px; font-weight:bold; }
+        .sismo .loc { font-weight:bold; font-size:17px; line-height:1.35; }
+        .sismo .meta { font-size:14px; color:var(--muted); margin-top:4px; }
+        .src { font-size:12px; padding:3px 8px; border-radius:6px; font-weight:bold; }
         .src.usgs{background:#1976d2}.src.funvisis{background:#d84315}.src.emsc{background:#6a1b9a}
         .primero { outline:2px solid #ffeb3b55; }
 
         .alerta-roja { animation:flashRed 1s infinite; }
         @keyframes flashRed { 0%{background:var(--bg)} 50%{background:#8b0000} 100%{background:var(--bg)} }
 
-        #mapa { height:340px; border-radius:10px; margin-top:6px; background:#22222a; z-index:0; }
+        #mapa { height:340px; border-radius:12px; margin-top:8px; background:#191c24; border:1px solid var(--line); z-index:0; }
         .leaflet-popup-content { font-size:.9em; }
-        .leaflet-container { background:#22222a; }
-        .pie-labs { margin-top:14px; text-align:center; font-size:.8em; color:var(--muted); line-height:1.6; }
-        .pie-labs a { color:#90caf9; text-decoration:none; }
+        .leaflet-container { background:#191c24; }
+        .pie-labs { margin-top:18px; text-align:center; font-size:13.5px; color:var(--muted); line-height:1.7; }
+        .pie-labs a { color:#8ab4f8; text-decoration:none; }
         .pie-labs a:hover { text-decoration:underline; }
-        .aviso-legal { background:#3a2e1a; border:1px solid #6b5424; color:#e8d9b8; font-size:.8em; line-height:1.45; padding:11px 13px; border-radius:8px; margin-bottom:14px; }
-        .acordeon { background:var(--card); margin-top:14px; border-radius:8px; overflow:hidden; }
-        .cabecera { padding:13px; cursor:pointer; font-weight:bold; border-bottom:1px solid var(--line); }
-        .contenido { padding:13px; display:none; font-size:.88em; color:#ccc; line-height:1.5; }
-        h2.sec { font-size:.95em; color:var(--muted); margin:18px 0 6px; }
+        .aviso-legal { background:#20222b; border:1px solid var(--line); border-left:4px solid #8d7333; color:#cbd3e0; font-size:14px; line-height:1.55; padding:13px 15px; border-radius:10px; margin-bottom:16px; }
+        .aviso-legal a { color:#8ab4f8; }
+        .acordeon { background:var(--card); margin-top:14px; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
+        .cabecera { padding:14px 15px; cursor:pointer; font-weight:bold; font-size:16px; border-bottom:1px solid var(--line); }
+        .contenido { padding:14px 15px; display:none; font-size:15px; color:#c3ccdb; line-height:1.6; }
+        h2.sec { font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin:22px 0 8px; }
+        button:focus-visible, .cabecera:focus-visible, input:focus-visible { outline:3px solid #8ab4f8; outline-offset:2px; }
     </style>
 </head>
 <body>
