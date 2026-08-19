@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1e1e24">
     <meta name="referrer" content="no-referrer">
     <!-- Seguridad: la app solo puede conectarse a USGS y al repetidor propio; nada de exfiltrar a otros dominios -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu https://power.larc.nasa.gov https://archive-api.open-meteo.com; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <style>
 /* required styles */
 
@@ -772,6 +772,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <h2 class="sec">Últimos movimientos</h2>
     <div id="lista"><p style="text-align:center;color:var(--muted)">El sistema está en pausa. Pulsa el botón rojo.</p></div>
 
+    <div id="temp-panel" class="controls" style="display:none; margin-top:14px;">
+        <label id="temp-titulo">🌡️ Temperatura del epicentro</label>
+        <canvas id="temp-canvas" style="width:100%; height:220px; display:block;"></canvas>
+        <div class="hint" id="temp-estado"></div>
+    </div>
+
     <div class="acordeon">
         <div class="cabecera" onclick="toggle(this)">🍎 Instalar en iPhone (Safari)</div>
         <div class="contenido">Toca "Compartir" (el cuadro con la flecha) → "Añadir a pantalla de inicio". Ábrela desde el icono para que ocupe toda la pantalla.</div>
@@ -1056,18 +1062,85 @@ function cuando(ms){
     return new Date(ms).toLocaleString('es-VE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 
+let sismosPintados=[];   // los que están en pantalla, para saber cuál se tocó
 function pintar(sismos){
     const cont=document.getElementById('lista');
     if(!sismos.length){ cont.innerHTML='<p style="text-align:center;color:var(--muted)">Sin sismos recientes en la zona.</p>'; return; }
-    cont.innerHTML = sismos.slice(0,6).map((s,i)=>{
+    sismosPintados=sismos.slice(0,6);
+    cont.innerHTML = sismosPintados.map((s,i)=>{
         const c=claseMag(s.mag);
-        return `<div class="sismo ${c} ${i===0?'primero':''}">
+        return `<div class="sismo ${c} ${i===0?'primero':''}" onclick="verTemperatura(${i})" style="cursor:pointer" title="Toca para ver la temperatura del epicentro">
             <div class="mag ${c}">${s.mag.toFixed(1)}</div>
             <div class="info">
                 <div class="loc">${esc(s.loc)}</div>
-                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} km prof.`:''} · <span class="src ${s.fuente==='USGS'?'usgs':'funvisis'}">${esc(s.fuente)}</span></div>
+                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} km prof.`:''} · <span class="src ${s.fuente==='USGS'?'usgs':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
             </div></div>`;
     }).join('');
+}
+
+// ---- Temperatura del epicentro (NASA POWER) — comparación exploratoria, NO predicción ----
+async function verTemperatura(i){
+    const s=sismosPintados[i];
+    if(!s || !isFinite(s.lat) || !isFinite(s.lon)) return;
+    const panel=document.getElementById('temp-panel');
+    panel.style.display='block';
+    document.getElementById('temp-titulo').textContent=`🌡️ Temperatura del epicentro — M ${s.mag.toFixed(1)} · ${s.loc}`;
+    document.getElementById('temp-estado').textContent='Consultando NASA POWER…';
+    panel.scrollIntoView({behavior:'smooth'});
+    const dia=86400000, f=ms=>new Date(ms).toISOString().slice(0,10).replace(/-/g,'');
+    // 30 días antes y hasta 30 después (o hasta hoy: el futuro no existe y el satélite publica con unos días de retraso)
+    const ini=f(s.ms-30*dia), fin=f(Math.min(Date.now(), s.ms+30*dia));
+    try{
+        const url=`https://power.larc.nasa.gov/api/temporal/daily/point?parameters=TS,T2M&community=RE`+
+            `&latitude=${s.lat.toFixed(3)}&longitude=${s.lon.toFixed(3)}&start=${ini}&end=${fin}&format=JSON`;
+        const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),20000);
+        const r=await fetch(url,{signal:ctrl.signal}); clearTimeout(to);
+        if(!r.ok) throw new Error(r.status);
+        const d=await r.json();
+        const ts=(d.properties&&d.properties.parameter&&d.properties.parameter.TS)||{};
+        // -999 es el "sin dato" de POWER: fuera
+        const serie=Object.entries(ts).map(([k,v])=>({ms:Date.parse(k.slice(0,4)+'-'+k.slice(4,6)+'-'+k.slice(6,8)),v}))
+            .filter(p=>isFinite(p.ms)&&v_ok(p.v)).sort((a,b)=>a.ms-b.ms);
+        if(!serie.length) throw new Error('sin datos');
+        dibujarTemp(serie, s.ms);
+        document.getElementById('temp-estado').textContent=
+            `Temperatura de superficie (TS, °C) — NASA POWER. Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.`;
+    }catch(e){
+        document.getElementById('temp-estado').textContent='No se pudo traer la temperatura (NASA POWER no respondió). Prueba en un rato.';
+    }
+}
+function v_ok(v){ return isFinite(v) && v>-900; }
+function dibujarTemp(serie, msSismo){
+    const cv=document.getElementById('temp-canvas'), ctx=cv.getContext('2d');
+    const W=cv.width=cv.clientWidth*(window.devicePixelRatio||1), H=cv.height=220*(window.devicePixelRatio||1);
+    ctx.clearRect(0,0,W,H);
+    const vals=serie.map(p=>p.v), lo=Math.min(...vals), hi=Math.max(...vals);
+    const m={l:44*(window.devicePixelRatio||1), r:10, t:14, b:26*(window.devicePixelRatio||1)};
+    const x=ms=>m.l+(W-m.l-m.r)*(ms-serie[0].ms)/Math.max(1,(serie[serie.length-1].ms-serie[0].ms));
+    const y=v=>m.t+(H-m.t-m.b)*(1-(v-lo)/Math.max(0.1,hi-lo));
+    const px=(window.devicePixelRatio||1);
+    ctx.font=(11*px)+'px sans-serif'; ctx.fillStyle='#9e9e9e'; ctx.strokeStyle='#424242'; ctx.lineWidth=1;
+    // rejilla y etiquetas de grados
+    for(let g=0;g<=3;g++){
+        const v=lo+(hi-lo)*g/3, yy=y(v);
+        ctx.beginPath(); ctx.moveTo(m.l,yy); ctx.lineTo(W-m.r,yy); ctx.stroke();
+        ctx.fillText(v.toFixed(1)+'°', 4, yy+4*px);
+    }
+    // la línea de temperatura
+    ctx.strokeStyle='#ffb74d'; ctx.lineWidth=2*px; ctx.beginPath();
+    serie.forEach((p,i)=>{ const xx=x(p.ms), yy=y(p.v); i?ctx.lineTo(xx,yy):ctx.moveTo(xx,yy); });
+    ctx.stroke();
+    // el día del sismo, marcado en rojo (el satélite publica con unos días de retraso:
+    // en un sismo de hoy la marca cae en el borde derecho, más allá del último dato)
+    const xs=Math.min(x(msSismo), W-m.r);
+    ctx.strokeStyle='#f44336'; ctx.lineWidth=2*px; ctx.setLineDash([6*px,4*px]);
+    ctx.beginPath(); ctx.moveTo(xs,m.t); ctx.lineTo(xs,H-m.b); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle='#f44336'; ctx.fillText('sismo', Math.min(xs+4*px, W-50*px), m.t+12*px);
+    // fechas de los extremos
+    ctx.fillStyle='#9e9e9e';
+    const fmt=ms=>new Date(ms).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit'});
+    ctx.fillText(fmt(serie[0].ms), m.l, H-8*px);
+    ctx.fillText(fmt(serie[serie.length-1].ms), W-m.r-46*px, H-8*px);
 }
 
 // El mismo sismo puede llegar por EMSC, USGS y FUNVISIS con tres identificadores distintos:
