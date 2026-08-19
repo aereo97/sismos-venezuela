@@ -730,7 +730,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <h1 id="titulo">🌎 Monitor Sísmico — Venezuela</h1>
     <div class="autor" id="fuentes">Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)</div>
 
-    <div class="aviso-legal">
+    <div class="aviso-legal" data-i18n-html="aviso">
         ⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo.
         <b>No es un sistema oficial de alerta temprana.</b> Usa datos públicos de USGS y FUNVISIS que
         pueden retrasarse, fallar o estar incompletos. <b>No sustituye a Protección Civil ni a los canales
@@ -749,7 +749,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <div class="controls">
-        <label>Zona vigilada</label>
+        <label data-i18n="idioma_label">Idioma</label>
+        <div class="modo-tabs" style="margin-bottom:12px;">
+            <button id="lang-es" class="modo-btn on" onclick="cambiarIdioma('es')">🇪🇸 ES</button>
+            <button id="lang-en" class="modo-btn" onclick="cambiarIdioma('en')">🇬🇧 EN</button>
+            <button id="lang-it" class="modo-btn" onclick="cambiarIdioma('it')">🇮🇹 IT</button>
+            <button id="lang-pt" class="modo-btn" onclick="cambiarIdioma('pt')">🇵🇹 PT</button>
+        </div>
+        <label data-i18n="zona_label">Zona vigilada</label>
         <div class="modo-tabs">
             <button id="btn-vzla" class="modo-btn on" onclick="cambiarModo(false)">🇻🇪 Venezuela</button>
             <button id="btn-mundo" class="modo-btn" onclick="cambiarModo(true)">🌍 Mundo</button>
@@ -758,19 +765,18 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <div class="controls">
-        <label>Sonar la alarma solo desde magnitud <span id="umbral-val" class="val">4.0</span></label>
+        <label><span data-i18n="umbral_label">Sonar la alarma solo desde magnitud</span> <span id="umbral-val" class="val">4.0</span></label>
         <input type="range" id="umbral" min="2" max="7" step="0.5" value="4" oninput="cambiarUmbral(this.value)">
         <div class="hint">
-            ⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos
-            pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.
+            <span data-i18n="umbral_hint">⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.</span>
         </div>
     </div>
 
-    <h2 class="sec">Mapa en tiempo real</h2>
+    <h2 class="sec" data-i18n="mapa_titulo">Mapa en tiempo real</h2>
     <div id="mapa"></div>
 
-    <h2 class="sec">Últimos movimientos</h2>
-    <div id="lista"><p style="text-align:center;color:var(--muted)">El sistema está en pausa. Pulsa el botón rojo.</p></div>
+    <h2 class="sec" data-i18n="lista_titulo">Últimos movimientos</h2>
+    <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
     <div id="temp-panel" class="controls" style="display:none; margin-top:14px;">
         <label id="temp-titulo">🌡️ Temperatura del epicentro</label>
@@ -779,15 +785,15 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <div class="acordeon">
-        <div class="cabecera" onclick="toggle(this)">🍎 Instalar en iPhone (Safari)</div>
-        <div class="contenido">Toca "Compartir" (el cuadro con la flecha) → "Añadir a pantalla de inicio". Ábrela desde el icono para que ocupe toda la pantalla.</div>
+        <div class="cabecera" onclick="toggle(this)" data-i18n="acc_ios_t">🍎 Instalar en iPhone (Safari)</div>
+        <div class="contenido" data-i18n="acc_ios_c">Toca "Compartir" (el cuadro con la flecha) → "Añadir a pantalla de inicio". Ábrela desde el icono para que ocupe toda la pantalla.</div>
     </div>
     <div class="acordeon">
-        <div class="cabecera" onclick="toggle(this)">🤖 Instalar en Android (Chrome)</div>
-        <div class="contenido">Toca los tres puntos (⋮) → "Instalar aplicación".</div>
+        <div class="cabecera" onclick="toggle(this)" data-i18n="acc_and_t">🤖 Instalar en Android (Chrome)</div>
+        <div class="contenido" data-i18n="acc_and_c">Toca los tres puntos (⋮) → "Instalar aplicación".</div>
     </div>
 
-    <div class="aviso-legal" style="margin-top:14px;">
+    <div class="aviso-legal" style="margin-top:14px;" data-i18n-html="creditos">
         📊 <b>De dónde vienen los datos:</b> sismos de
         <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servicio Geológico de EE.UU.),
         <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y
@@ -818,6 +824,144 @@ const MODO_KEY = 'sismos-zona';
 // Tiempo real: EMSC empuja cada sismo por WebSocket en segundos, en cuanto una agencia lo publica.
 // El sondeo a USGS cada minuto se queda como respaldo por si el socket se cae.
 const EMSC_WS = 'wss://www.seismicportal.eu/standing_order/websocket';
+
+// ---- Idiomas: diccionario propio, sin servicios externos. 'es' es el original. ----
+const IDIOMA_KEY='sismos-idioma';
+let idioma='es';
+const I18N={
+es:{
+ doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigilada',
+ titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
+ fuentes_vzla:'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_mundo:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ modo_hint_vzla:'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.',
+ modo_hint_mundo:'Mundo: sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
+ activar_btn:'TOCA PARA ACTIVAR EL MONITOREO Y LA ALARMA', monitoreando:'✅ MONITOREANDO EN TIEMPO REAL',
+ sin_activar:'Sin activar todavía.', ultima_comp:'Última comprobación: ',
+ umbral_label:'Sonar la alarma solo desde magnitud',
+ umbral_hint:'⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.',
+ mapa_titulo:'Mapa en tiempo real', lista_titulo:'Últimos movimientos',
+ pausa:'El sistema está en pausa. Pulsa el botón rojo.', sin_sismos:'Sin sismos recientes en la zona.',
+ prof:'km prof.', toca_temp:'Toca para ver la temperatura del epicentro',
+ ahora:'ahora mismo', hace_min:'hace {n} min', hace_h:'hace {n} h',
+ pantalla_off:'Pantalla —', pantalla_on:'Pantalla activa 🔆',
+ emsc_vivo:'EMSC ⚡ en vivo', emsc_rec:'EMSC ❌ reconectando',
+ temp_titulo:'🌡️ Temperatura del epicentro', temp_cargando:'Consultando NASA POWER…',
+ temp_fuente:'Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.',
+ temp_error:'No se pudo traer la temperatura (NASA POWER no respondió). Prueba en un rato.', temp_sismo:'sismo',
+ acc_ios_t:'🍎 Instalar en iPhone (Safari)',
+ acc_ios_c:'Toca "Compartir" (el cuadro con la flecha) → "Añadir a pantalla de inicio". Ábrela desde el icono para que ocupe toda la pantalla.',
+ acc_and_t:'🤖 Instalar en Android (Chrome)', acc_and_c:'Toca los tres puntos (⋮) → "Instalar aplicación".',
+ aviso:'⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo. <b>No es un sistema oficial de alerta temprana.</b> Usa datos públicos de USGS y FUNVISIS que pueden retrasarse, fallar o estar incompletos. <b>No sustituye a Protección Civil ni a los canales oficiales.</b> No garantiza avisar de todos los sismos ni funcionar sin conexión. Úsala bajo tu propia responsabilidad.',
+ creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servicio Geológico de EE.UU.), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> y colaboradores. Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
+},
+en:{
+ doc_title:'Seismic Monitor', idioma_label:'Language', zona_label:'Watched area',
+ titulo_vzla:'🌎 Seismic Monitor — Venezuela', titulo_mundo:'🌍 Seismic Monitor — World',
+ fuentes_vzla:'Official sources: USGS (USA) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
+ fuentes_mundo:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
+ modo_hint_vzla:'Venezuela: everything that moves in the country and its coast, however small.',
+ modo_hint_mundo:'World: earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
+ activar_btn:'TAP TO START MONITORING AND THE ALARM', monitoreando:'✅ MONITORING IN REAL TIME',
+ sin_activar:'Not started yet.', ultima_comp:'Last check: ',
+ umbral_label:'Sound the alarm only from magnitude',
+ umbral_hint:'⚠️ For the alarm to sound, keep this screen open and on. Small quakes always appear in the list; the audible alarm fires from the chosen magnitude.',
+ mapa_titulo:'Live map', lista_titulo:'Latest earthquakes',
+ pausa:'The system is paused. Press the red button.', sin_sismos:'No recent earthquakes in the area.',
+ prof:'km deep', toca_temp:'Tap to see the epicenter temperature',
+ ahora:'just now', hace_min:'{n} min ago', hace_h:'{n} h ago',
+ pantalla_off:'Screen —', pantalla_on:'Screen awake 🔆',
+ emsc_vivo:'EMSC ⚡ live', emsc_rec:'EMSC ❌ reconnecting',
+ temp_titulo:'🌡️ Epicenter temperature', temp_cargando:'Querying NASA POWER…',
+ temp_fuente:'Surface temperature (TS, °C) — data from the NASA POWER project (power.larc.nasa.gov). Exploratory comparison: science has not shown that temperature predicts earthquakes.',
+ temp_error:'Could not fetch the temperature (NASA POWER did not answer). Try again in a while.', temp_sismo:'quake',
+ acc_ios_t:'🍎 Install on iPhone (Safari)',
+ acc_ios_c:'Tap "Share" (the box with the arrow) → "Add to Home Screen". Open it from the icon so it fills the screen.',
+ acc_and_t:'🤖 Install on Android (Chrome)', acc_and_c:'Tap the three dots (⋮) → "Install app".',
+ aviso:'⚠️ <b>Notice:</b> Free, <b>non-profit</b> tool, for information only. <b>It is not an official early-warning system.</b> It uses public USGS and FUNVISIS data that may be delayed, fail or be incomplete. <b>It does not replace Civil Protection or official channels.</b> It does not guarantee warning of every earthquake or working offline. Use at your own risk.',
+ creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Thanks to all of them: without their open data this app would not exist.'
+},
+it:{
+ doc_title:'Monitor Sismico', idioma_label:'Lingua', zona_label:'Zona sorvegliata',
+ titulo_vzla:'🌎 Monitor Sismico — Venezuela', titulo_mundo:'🌍 Monitor Sismico — Mondo',
+ fuentes_vzla:'Fonti ufficiali: USGS (USA) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_mundo:'Fonti ufficiali: USGS (USA) + EMSC (Europa, in diretta) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ modo_hint_vzla:'Venezuela: tutto ciò che si muove nel paese e sulla sua costa, per quanto piccolo.',
+ modo_hint_mundo:'Mondo: terremoti di tutto il pianeta da magnitudo {mag}, in diretta via EMSC appena un ente li pubblica.',
+ activar_btn:"TOCCA PER ATTIVARE IL MONITORAGGIO E L'ALLARME", monitoreando:'✅ MONITORAGGIO IN TEMPO REALE',
+ sin_activar:'Non ancora attivato.', ultima_comp:'Ultimo controllo: ',
+ umbral_label:"Suona l'allarme solo da magnitudo",
+ umbral_hint:"⚠️ Perché l'allarme suoni, tieni questo schermo aperto e acceso. I terremoti piccoli compaiono sempre nella lista; l'allarme sonoro scatta dalla magnitudo scelta.",
+ mapa_titulo:'Mappa in tempo reale', lista_titulo:'Ultimi terremoti',
+ pausa:'Il sistema è in pausa. Premi il pulsante rosso.', sin_sismos:'Nessun terremoto recente nella zona.',
+ prof:'km prof.', toca_temp:"Tocca per vedere la temperatura dell'epicentro",
+ ahora:'proprio ora', hace_min:'{n} min fa', hace_h:'{n} h fa',
+ pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
+ emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
+ temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
+ temp_fuente:'Temperatura superficiale (TS, °C) — dati del progetto NASA POWER (power.larc.nasa.gov). Confronto esplorativo: la scienza non ha dimostrato che la temperatura preveda i terremoti.',
+ temp_error:'Impossibile scaricare la temperatura (NASA POWER non risponde). Riprova tra poco.', temp_sismo:'sisma',
+ acc_ios_t:'🍎 Installa su iPhone (Safari)',
+ acc_ios_c:'Tocca "Condividi" (il riquadro con la freccia) → "Aggiungi alla schermata Home". Aprila dall\'icona così occupa tutto lo schermo.',
+ acc_and_t:'🤖 Installa su Android (Chrome)', acc_and_c:'Tocca i tre puntini (⋮) → "Installa app".',
+ aviso:'⚠️ <b>Avviso:</b> strumento gratuito e <b>senza fini di lucro</b>, a carattere informativo. <b>Non è un sistema ufficiale di allerta precoce.</b> Usa dati pubblici di USGS e FUNVISIS che possono ritardare, fallire o essere incompleti. <b>Non sostituisce la Protezione Civile né i canali ufficiali.</b> Non garantisce di avvisare di tutti i terremoti né di funzionare offline. Usala sotto la tua responsabilità.',
+ creditos:'📊 <b>Da dove vengono i dati:</b> terremoti da <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Servizio Geologico degli USA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fondazione Venezuelana di Ricerche Sismologiche) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismologico Euro-Mediterraneo, in diretta). Temperatura da <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mappa © collaboratori di <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Grazie a tutti loro: senza i loro dati aperti questa app non esisterebbe.'
+},
+pt:{
+ doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigiada',
+ titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
+ fuentes_vzla:'Fontes oficiais: USGS (EUA) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ fuentes_mundo:'Fontes oficiais: USGS (EUA) + EMSC (Europa, ao vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ modo_hint_vzla:'Venezuela: tudo o que se move no país e na sua costa, por menor que seja.',
+ modo_hint_mundo:'Mundo: sismos de todo o planeta a partir da magnitude {mag}, ao vivo via EMSC assim que qualquer agência os publica.',
+ activar_btn:'TOQUE PARA ATIVAR O MONITORAMENTO E O ALARME', monitoreando:'✅ MONITORANDO EM TEMPO REAL',
+ sin_activar:'Ainda não ativado.', ultima_comp:'Última verificação: ',
+ umbral_label:'Tocar o alarme só a partir da magnitude',
+ umbral_hint:'⚠️ Para o alarme tocar, mantenha esta tela aberta e ligada. Os sismos pequenos sempre aparecem na lista; o alarme sonoro dispara a partir da magnitude escolhida.',
+ mapa_titulo:'Mapa em tempo real', lista_titulo:'Últimos sismos',
+ pausa:'O sistema está em pausa. Pressione o botão vermelho.', sin_sismos:'Sem sismos recentes na zona.',
+ prof:'km prof.', toca_temp:'Toque para ver a temperatura do epicentro',
+ ahora:'agora mesmo', hace_min:'há {n} min', hace_h:'há {n} h',
+ pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
+ emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
+ temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
+ temp_fuente:'Temperatura de superfície (TS, °C) — dados do projeto NASA POWER (power.larc.nasa.gov). Comparação exploratória: a ciência não demonstrou que a temperatura preveja sismos.',
+ temp_error:'Não foi possível obter a temperatura (NASA POWER não respondeu). Tente daqui a pouco.', temp_sismo:'sismo',
+ acc_ios_t:'🍎 Instalar no iPhone (Safari)',
+ acc_ios_c:'Toque em "Compartilhar" (o quadro com a seta) → "Adicionar à Tela de Início". Abra pelo ícone para ocupar a tela inteira.',
+ acc_and_t:'🤖 Instalar no Android (Chrome)', acc_and_c:'Toque nos três pontos (⋮) → "Instalar aplicativo".',
+ aviso:'⚠️ <b>Aviso:</b> ferramenta gratuita e <b>sem fins lucrativos</b>, de caráter informativo. <b>Não é um sistema oficial de alerta precoce.</b> Usa dados públicos do USGS e da FUNVISIS que podem atrasar, falhar ou estar incompletos. <b>Não substitui a Proteção Civil nem os canais oficiais.</b> Não garante avisar de todos os sismos nem funcionar sem conexão. Use por sua própria conta e risco.',
+ creditos:'📊 <b>De onde vêm os dados:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Serviço Geológico dos EUA), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundação Venezuelana de Pesquisas Sismológicas) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterrâneo, ao vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa © colaboradores do <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>. Obrigado a todos eles: sem os seus dados abertos este app não existiria.'
+}
+};
+function t(k){ return (I18N[idioma]&&I18N[idioma][k]) || I18N.es[k] || k; }
+function aplicarIdioma(){
+    document.documentElement.lang=idioma;
+    document.title=t('doc_title');
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
+    // solo aviso y créditos llevan HTML, y sale del diccionario propio, no de fuera
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML=t(el.getAttribute('data-i18n-html')); });
+    ['es','en','it','pt'].forEach(l=>{ const b=document.getElementById('lang-'+l); if(b) b.classList.toggle('on', l===idioma); });
+    const btn=document.getElementById('btn-activar');
+    btn.textContent = monitoreoActivo ? t('monitoreando') : t('activar_btn');
+    if(monitoreoActivo){
+        // la última comprobación se reescribe sola en el próximo chequeo; no la pisamos
+    } else {
+        document.getElementById('ultima-act').textContent=t('sin_activar');
+    }
+    pintarModo();
+    if(sismosPintados.length) pintar(sismosPintados);
+}
+function cambiarIdioma(l){
+    if(!I18N[l] || l===idioma) return;
+    idioma=l;
+    try{ localStorage.setItem(IDIOMA_KEY,l); }catch(e){}
+    aplicarIdioma();
+}
+function initIdioma(){
+    let g=null; try{ g=localStorage.getItem(IDIOMA_KEY); }catch(e){}
+    if(g && I18N[g]) idioma=g;
+}
 let modoMundo = false;          // se restaura de localStorage al arrancar (ver initModo)
 const VET_OFFSET_H = 4; // Venezuela = UTC-4, para convertir la hora de FUNVISIS
 // La API de FUNVISIS no permite peticiones desde el navegador (sin CORS). Para usarla hace falta
@@ -838,14 +982,11 @@ function cambiarUmbral(v){ umbralAlarma = parseFloat(v); document.getElementById
 function pintarModo(){
     document.getElementById('btn-vzla').classList.toggle('on', !modoMundo);
     document.getElementById('btn-mundo').classList.toggle('on', modoMundo);
-    document.getElementById('titulo').textContent = modoMundo ? '🌍 Monitor Sísmico — Mundo' : '🌎 Monitor Sísmico — Venezuela';
-    document.getElementById('fuentes').textContent = modoMundo
-        ? 'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER'
-        : 'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) · Temperatura: NASA POWER';
+    document.getElementById('titulo').textContent = t(modoMundo?'titulo_mundo':'titulo_vzla');
+    document.getElementById('fuentes').textContent = t(modoMundo?'fuentes_mundo':'fuentes_vzla');
     document.getElementById('hint-modo').textContent = modoMundo
-        ? 'Mundo: sismos de todo el planeta desde magnitud ' + MUNDO_MINMAG.toFixed(1) +
-          ', en vivo por EMSC en cuanto los publica cualquier agencia.'
-        : 'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.';
+        ? t('modo_hint_mundo').replace('{mag}', MUNDO_MINMAG.toFixed(1))
+        : t('modo_hint_vzla');
     const be = document.getElementById('status-emsc');
     if(be) be.style.display = modoMundo ? 'inline-block' : 'none';
 }
@@ -894,10 +1035,10 @@ async function pedirWakeLock(){
     try{
         if('wakeLock' in navigator){
             wakeLock = await navigator.wakeLock.request('screen');
-            document.getElementById('status-wake').textContent='Pantalla activa 🔆';
+            document.getElementById('status-wake').textContent=t('pantalla_on');
             document.getElementById('status-wake').className='status-badge active';
             wakeLock.addEventListener('release',()=>{
-                document.getElementById('status-wake').textContent='Pantalla —';
+                document.getElementById('status-wake').textContent=t('pantalla_off');
                 document.getElementById('status-wake').className='status-badge';
             });
         }
@@ -985,7 +1126,7 @@ function abrirEmsc(){
     wsCerradoAdrede=false;
     try{ wsEmsc=new WebSocket(EMSC_WS); }
     catch(e){ setBadge('status-emsc',false,'EMSC ❌'); return; }
-    wsEmsc.onopen=()=>{ wsEspera=1000; setBadge('status-emsc',true,'EMSC ⚡ en vivo'); };
+    wsEmsc.onopen=()=>{ wsEspera=1000; setBadge('status-emsc',true,t('emsc_vivo')); };
     wsEmsc.onmessage=ev=>{
         let m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
         const s=sismoDesdeEmsc(m);
@@ -996,7 +1137,7 @@ function abrirEmsc(){
     };
     wsEmsc.onclose=()=>{
         if(wsCerradoAdrede || !modoMundo || !monitoreoActivo) return;
-        setBadge('status-emsc',false,'EMSC ❌ reconectando');
+        setBadge('status-emsc',false,t('emsc_rec'));
         setTimeout(abrirEmsc, wsEspera);
         wsEspera=Math.min(wsEspera*2, 60000);   // reintento con espera creciente, sin machacar
     };
@@ -1066,24 +1207,24 @@ function actualizarMapa(sismos){
 }
 function cuando(ms){
     const diff=Date.now()-ms, min=Math.round(diff/60000);
-    if(min<1) return 'ahora mismo';
-    if(min<60) return `hace ${min} min`;
-    const h=Math.round(min/60); if(h<24) return `hace ${h} h`;
+    if(min<1) return t('ahora');
+    if(min<60) return t('hace_min').replace('{n}',min);
+    const h=Math.round(min/60); if(h<24) return t('hace_h').replace('{n}',h);
     return new Date(ms).toLocaleString('es-VE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
 }
 
 let sismosPintados=[];   // los que están en pantalla, para saber cuál se tocó
 function pintar(sismos){
     const cont=document.getElementById('lista');
-    if(!sismos.length){ cont.innerHTML='<p style="text-align:center;color:var(--muted)">Sin sismos recientes en la zona.</p>'; return; }
+    if(!sismos.length){ cont.innerHTML='<p style="text-align:center;color:var(--muted)">'+esc(t('sin_sismos'))+'</p>'; return; }
     sismosPintados=sismos.slice(0,6);
     cont.innerHTML = sismosPintados.map((s,i)=>{
         const c=claseMag(s.mag);
-        return `<div class="sismo ${c} ${i===0?'primero':''}" onclick="verTemperatura(${i})" style="cursor:pointer" title="Toca para ver la temperatura del epicentro">
+        return `<div class="sismo ${c} ${i===0?'primero':''}" onclick="verTemperatura(${i})" style="cursor:pointer" title="${esc(t('toca_temp'))}">
             <div class="mag ${c}">${s.mag.toFixed(1)}</div>
             <div class="info">
                 <div class="loc">${esc(s.loc)}</div>
-                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} km prof.`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
+                <div class="meta">${cuando(s.ms)}${s.prof?` · ${Math.round(s.prof)} ${t('prof')}`:''} · <span class="src ${s.fuente==='USGS'?'usgs':s.fuente==='EMSC'?'emsc':'funvisis'}">${esc(s.fuente)}</span> · 🌡️</div>
             </div></div>`;
     }).join('');
 }
@@ -1094,8 +1235,8 @@ async function verTemperatura(i){
     if(!s || !isFinite(s.lat) || !isFinite(s.lon)) return;
     const panel=document.getElementById('temp-panel');
     panel.style.display='block';
-    document.getElementById('temp-titulo').textContent=`🌡️ Temperatura del epicentro — M ${s.mag.toFixed(1)} · ${s.loc}`;
-    document.getElementById('temp-estado').textContent='Consultando NASA POWER…';
+    document.getElementById('temp-titulo').textContent=`${t('temp_titulo')} — M ${s.mag.toFixed(1)} · ${s.loc}`;
+    document.getElementById('temp-estado').textContent=t('temp_cargando');
     panel.scrollIntoView({behavior:'smooth'});
     const dia=86400000, f=ms=>new Date(ms).toISOString().slice(0,10).replace(/-/g,'');
     // 30 días antes y hasta 30 después (o hasta hoy: el futuro no existe y el satélite publica con unos días de retraso)
@@ -1113,10 +1254,9 @@ async function verTemperatura(i){
             .filter(p=>isFinite(p.ms)&&v_ok(p.v)).sort((a,b)=>a.ms-b.ms);
         if(!serie.length) throw new Error('sin datos');
         dibujarTemp(serie, s.ms);
-        document.getElementById('temp-estado').textContent=
-            `Temperatura de superficie (TS, °C) — datos del proyecto NASA POWER (power.larc.nasa.gov). Comparación exploratoria: la ciencia no ha demostrado que la temperatura prediga sismos.`;
+        document.getElementById('temp-estado').textContent=t('temp_fuente');
     }catch(e){
-        document.getElementById('temp-estado').textContent='No se pudo traer la temperatura (NASA POWER no respondió). Prueba en un rato.';
+        document.getElementById('temp-estado').textContent=t('temp_error');
     }
 }
 function v_ok(v){ return isFinite(v) && v>-900; }
@@ -1145,7 +1285,7 @@ function dibujarTemp(serie, msSismo){
     const xs=Math.min(x(msSismo), W-m.r);
     ctx.strokeStyle='#f44336'; ctx.lineWidth=2*px; ctx.setLineDash([6*px,4*px]);
     ctx.beginPath(); ctx.moveTo(xs,m.t); ctx.lineTo(xs,H-m.b); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle='#f44336'; ctx.fillText('sismo', Math.min(xs+4*px, W-50*px), m.t+12*px);
+    ctx.fillStyle='#f44336'; ctx.fillText(t('temp_sismo'), Math.min(xs+4*px, W-50*px), m.t+12*px);
     // fechas de los extremos
     ctx.fillStyle='#9e9e9e';
     const fmt=ms=>new Date(ms).toLocaleDateString('es-VE',{day:'2-digit',month:'2-digit'});
@@ -1183,7 +1323,7 @@ async function chequear(){
     if(!monitoreoActivo) return;
     const [u,f]=await Promise.all([fetchUSGS(),fetchFunvisis()]);
     ultimoSondeo=[...u,...f];
-    document.getElementById('ultima-act').textContent='Última comprobación: '+new Date().toLocaleTimeString('es-VE');
+    document.getElementById('ultima-act').textContent=t('ultima_comp')+new Date().toLocaleTimeString('es-VE');
     refrescar();
 }
 
@@ -1194,7 +1334,7 @@ async function activarSistema(){
     if(!FUNVISIS_PROXY){ const b=document.getElementById('status-funvisis'); if(b) b.style.display='none'; }
     monitoreoActivo=true;
     const btn=document.getElementById('btn-activar');
-    btn.textContent='✅ MONITOREANDO EN TIEMPO REAL';
+    btn.textContent=t('monitoreando');
     btn.classList.add('on');
     crearMapa();
     abrirEmsc();
@@ -1203,7 +1343,9 @@ async function activarSistema(){
     setInterval(chequear,INTERVALO_MS);
 }
 
+initIdioma();
 initModo();
+aplicarIdioma();
 </script>
 </body>
 </html>
