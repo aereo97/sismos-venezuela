@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1e1e24">
     <meta name="referrer" content="no-referrer">
     <!-- Seguridad: la app solo puede conectarse a USGS y al repetidor propio; nada de exfiltrar a otros dominios -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; connect-src https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu; img-src 'self' data: https://*.tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <style>
 /* required styles */
 
@@ -695,6 +695,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
         input[type=range] { width:100%; }
         .hint { font-size:.78em; color:var(--muted); margin-top:8px; line-height:1.4; }
 
+        .modo-tabs { display:flex; gap:8px; }
+        .modo-btn { flex:1; padding:10px 8px; font-size:.95em; border-radius:8px; cursor:pointer;
+                    background:#1e1e1e; color:var(--muted); border:1px solid var(--line); }
+        .modo-btn.on { background:#2e4a2e; color:#e8f5e9; border-color:#4caf50; font-weight:bold; }
+
         .sismo { background:var(--card); padding:12px 14px; border-radius:10px; border-left:5px solid #4caf50; margin-top:10px; display:flex; align-items:center; gap:14px; }
         .sismo.med { border-left-color:#ff9800; }
         .sismo.high { border-left-color:#f44336; }
@@ -722,8 +727,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </head>
 <body>
 <div class="container">
-    <h1>🌎 Monitor Sísmico — Venezuela</h1>
-    <div class="autor">Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)</div>
+    <h1 id="titulo">🌎 Monitor Sísmico — Venezuela</h1>
+    <div class="autor" id="fuentes">Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)</div>
 
     <div class="aviso-legal">
         ⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo.
@@ -738,8 +743,18 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="status-bar">
         <span id="status-usgs" class="status-badge">USGS ⏸️</span>
         <span id="status-funvisis" class="status-badge">FUNVISIS ⏸️</span>
+        <span id="status-emsc" class="status-badge">EMSC ⏸️</span>
         <span id="status-wake" class="status-badge">Pantalla —</span>
         <div id="ultima-act" class="hint" style="margin-top:8px;">Sin activar todavía.</div>
+    </div>
+
+    <div class="controls">
+        <label>Zona vigilada</label>
+        <div class="modo-tabs">
+            <button id="btn-vzla" class="modo-btn on" onclick="cambiarModo(false)">🇻🇪 Venezuela</button>
+            <button id="btn-mundo" class="modo-btn" onclick="cambiarModo(true)">🌍 Mundo</button>
+        </div>
+        <div class="hint" id="hint-modo"></div>
     </div>
 
     <div class="controls">
@@ -780,6 +795,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
 // ---- Configuración ----
 const VZLA_BBOX = { minLat: 0, maxLat: 13, minLon: -74, maxLon: -59 }; // caja que cubre Venezuela + costa + Trinidad
 const INTERVALO_MS = 60000;
+// Modo Mundo: USGS sin recorte de caja. El planeta entero da decenas de sismos al día, así que
+// se piden solo los de magnitud media para arriba; con minmagnitude 1 la lista sería ilegible.
+const MUNDO_MINMAG = 4.0;       // igual que la alarma de siempre: lo que suena, se ve
+const MODO_KEY = 'sismos-zona';
+// Tiempo real: EMSC empuja cada sismo por WebSocket en segundos, en cuanto una agencia lo publica.
+// El sondeo a USGS cada minuto se queda como respaldo por si el socket se cae.
+const EMSC_WS = 'wss://www.seismicportal.eu/standing_order/websocket';
+let modoMundo = false;          // se restaura de localStorage al arrancar (ver initModo)
 const VET_OFFSET_H = 4; // Venezuela = UTC-4, para convertir la hora de FUNVISIS
 // La API de FUNVISIS no permite peticiones desde el navegador (sin CORS). Para usarla hace falta
 // un repetidor propio (Cloudflare Worker) que la reenvíe con la cabecera CORS. Pega aquí la URL
@@ -789,10 +812,45 @@ const FUNVISIS_PROXY = 'https://shy-sound-3bd3.aereo97.workers.dev';
 let monitoreoActivo = false, audioCtx = null, wakeLock = null;
 let umbralAlarma = 4.0;
 let idsVistos = new Set();      // dedupe de sismos ya conocidos (no re-alarmar)
+let vistosRec = [];             // los últimos ya conocidos, para no re-alarmar el mismo sismo que otra agencia numera distinto
 let primeraCarga = true;        // en el primer barrido no suena (evita alarma por lo viejo)
 
 function toggle(el){ const c=el.nextElementSibling; c.style.display = c.style.display==='block'?'none':'block'; }
 function cambiarUmbral(v){ umbralAlarma = parseFloat(v); document.getElementById('umbral-val').textContent = umbralAlarma.toFixed(1); }
+
+// ---- Zona vigilada: Venezuela o el planeta entero ----
+function pintarModo(){
+    document.getElementById('btn-vzla').classList.toggle('on', !modoMundo);
+    document.getElementById('btn-mundo').classList.toggle('on', modoMundo);
+    document.getElementById('titulo').textContent = modoMundo ? '🌍 Monitor Sísmico — Mundo' : '🌎 Monitor Sísmico — Venezuela';
+    document.getElementById('fuentes').textContent = modoMundo
+        ? 'Fuente oficial: USGS (red mundial) + FUNVISIS (Venezuela)'
+        : 'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)';
+    document.getElementById('hint-modo').textContent = modoMundo
+        ? 'Mundo: sismos de todo el planeta desde magnitud ' + MUNDO_MINMAG.toFixed(1) +
+          ', en vivo por EMSC en cuanto los publica cualquier agencia.'
+        : 'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.';
+    const be = document.getElementById('status-emsc');
+    if(be) be.style.display = modoMundo ? 'inline-block' : 'none';
+}
+function cambiarModo(aMundo){
+    if(modoMundo === !!aMundo) return;
+    modoMundo = !!aMundo;
+    try { localStorage.setItem(MODO_KEY, modoMundo ? 'mundo' : 'vzla'); } catch(e){}
+    pintarModo();
+    // Lista nueva: se olvida lo visto y no suena la alarma por lo que ya estaba ahí.
+    idsVistos = new Set(); vistosRec = []; sismosEnVivo = []; ultimoSondeo = [];
+    primeraCarga = true;
+    encuadrarMapa();
+    if(modoMundo) abrirEmsc(); else cerrarEmsc();
+    if(monitoreoActivo) chequear();
+}
+function initModo(){
+    let guardado = null;
+    try { guardado = localStorage.getItem(MODO_KEY); } catch(e){}
+    modoMundo = (guardado === 'mundo');
+    pintarModo();
+}
 
 // ---- Alarma ----
 function hacerSonarAlarma(){
@@ -829,7 +887,11 @@ async function pedirWakeLock(){
         }
     }catch(e){ /* algunos navegadores lo niegan; el aviso honesto ya está en pantalla */ }
 }
-document.addEventListener('visibilitychange',()=>{ if(monitoreoActivo && document.visibilityState==='visible' && wakeLock===null) pedirWakeLock(); });
+document.addEventListener('visibilitychange',()=>{
+    if(!monitoreoActivo || document.visibilityState!=='visible') return;
+    if(wakeLock===null) pedirWakeLock();
+    abrirEmsc();   // el móvil corta sockets al dormirse: al volver, se reengancha
+});
 
 // ---- Fuentes ----
 function setBadge(id,ok,txt){ const e=document.getElementById(id); e.className='status-badge '+(ok?'active':'baderr'); e.textContent=txt; }
@@ -837,9 +899,11 @@ function setBadge(id,ok,txt){ const e=document.getElementById(id); e.className='
 async function fetchUSGS(){
     const start=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
     const url=`https://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=${start}`+
-        `&minlatitude=${VZLA_BBOX.minLat}&maxlatitude=${VZLA_BBOX.maxLat}`+
-        `&minlongitude=${VZLA_BBOX.minLon}&maxlongitude=${VZLA_BBOX.maxLon}`+
-        `&minmagnitude=1&orderby=time&limit=50`;
+        (modoMundo
+            ? `&minmagnitude=${MUNDO_MINMAG}&orderby=time&limit=100`
+            : `&minlatitude=${VZLA_BBOX.minLat}&maxlatitude=${VZLA_BBOX.maxLat}`+
+              `&minlongitude=${VZLA_BBOX.minLon}&maxlongitude=${VZLA_BBOX.maxLon}`+
+              `&minmagnitude=1&orderby=time&limit=50`);
     try{
         const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
         const r=await fetch(url,{signal:ctrl.signal}); clearTimeout(to);
@@ -881,11 +945,69 @@ async function fetchFunvisis(){
     }catch(e){ setBadge('status-funvisis',false,'FUNVISIS ❌'); return []; }
 }
 
-// dos fuentes pueden reportar el mismo sismo: fusionar por cercanía en tiempo (<2min) y magnitud (<0.6)
+// ---- EMSC en vivo (WebSocket): el sismo llega empujado, no hay que esperar al siguiente sondeo ----
+let wsEmsc=null, wsEspera=1000, wsCerradoAdrede=false;
+let sismosEnVivo=[];   // lo que ha llegado por el socket
+let ultimoSondeo=[];   // lo último que trajeron USGS y FUNVISIS
+
+function sismoDesdeEmsc(msg){
+    const d=(msg && msg.data) || msg;
+    const p=d && d.properties;
+    if(!p) return null;
+    const c=(d.geometry && d.geometry.coordinates) || [];
+    const mag=parseFloat(p.mag), ms=Date.parse(p.time);
+    if(!isFinite(mag) || !isFinite(ms)) return null;
+    const lat=parseFloat(p.lat!=null?p.lat:c[1]), lon=parseFloat(p.lon!=null?p.lon:c[0]);
+    return { fuente:'EMSC', mag, ms, lat, lon,
+             loc:p.flynn_region||p.region||'—',
+             prof:parseFloat(p.depth!=null?p.depth:c[2]),
+             id:'emsc-'+(p.unid||p.source_id||ms) };
+}
+function abrirEmsc(){
+    if(!modoMundo || !monitoreoActivo) return;
+    if(wsEmsc && (wsEmsc.readyState===WebSocket.CONNECTING || wsEmsc.readyState===WebSocket.OPEN)) return;
+    wsCerradoAdrede=false;
+    try{ wsEmsc=new WebSocket(EMSC_WS); }
+    catch(e){ setBadge('status-emsc',false,'EMSC ❌'); return; }
+    wsEmsc.onopen=()=>{ wsEspera=1000; setBadge('status-emsc',true,'EMSC ⚡ en vivo'); };
+    wsEmsc.onmessage=ev=>{
+        let m; try{ m=JSON.parse(ev.data); }catch(e){ return; }
+        const s=sismoDesdeEmsc(m);
+        if(!s || s.mag < MUNDO_MINMAG) return;
+        // una revisión del mismo sismo (action "update") reemplaza a la anterior, no se duplica
+        sismosEnVivo=[s, ...sismosEnVivo.filter(x=>x.id!==s.id)].slice(0,60);
+        refrescar();
+    };
+    wsEmsc.onclose=()=>{
+        if(wsCerradoAdrede || !modoMundo || !monitoreoActivo) return;
+        setBadge('status-emsc',false,'EMSC ❌ reconectando');
+        setTimeout(abrirEmsc, wsEspera);
+        wsEspera=Math.min(wsEspera*2, 60000);   // reintento con espera creciente, sin machacar
+    };
+}
+function cerrarEmsc(){
+    wsCerradoAdrede=true;
+    if(wsEmsc){ try{ wsEmsc.close(); }catch(e){} wsEmsc=null; }
+    sismosEnVivo=[];
+    const b=document.getElementById('status-emsc'); if(b){ b.className='status-badge'; b.textContent='EMSC ⏸️'; }
+}
+
+// Distancia en km entre dos puntos (haversine). Sirve para no confundir dos sismos distintos.
+function distKm(a,b){
+    if(![a.lat,a.lon,b.lat,b.lon].every(isFinite)) return NaN;   // sin coordenadas: no opina
+    const R=6371, rad=Math.PI/180;
+    const dLat=(b.lat-a.lat)*rad, dLon=(b.lon-a.lon)*rad;
+    const h=Math.sin(dLat/2)**2 + Math.cos(a.lat*rad)*Math.cos(b.lat*rad)*Math.sin(dLon/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));
+}
+// dos fuentes pueden reportar el mismo sismo: fusionar por cercanía en tiempo (<2min), magnitud (<0.6)
+// y sitio (<150 km). Sin la distancia, en modo Mundo dos sismos del mismo minuto en continentes
+// opuestos se fundían en uno y desaparecía el segundo. Sin coordenadas se decide como antes.
 function dedupe(lista){
     const out=[];
     for(const s of lista){
-        const dup=out.find(o=>Math.abs(o.ms-s.ms)<120000 && Math.abs((o.mag||0)-(s.mag||0))<0.6);
+        const dup=out.find(o=>Math.abs(o.ms-s.ms)<120000 && Math.abs((o.mag||0)-(s.mag||0))<0.6
+            && !(distKm(o,s)>150));
         if(!dup) out.push(s);
         else if(dup.fuente==='USGS' && s.fuente==='FUNVISIS') dup.loc+=' · tb. FUNVISIS';
     }
@@ -903,6 +1025,13 @@ function crearMapa(){
     mapa = L.map('mapa').setView([8.5, -66], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:10, minZoom:2, attribution:'© OpenStreetMap' }).addTo(mapa);
     capaSismos = L.layerGroup().addTo(mapa);
+    encuadrarMapa();
+}
+// Encuadre según la zona vigilada: Venezuela de cerca, el planeta entero de lejos.
+function encuadrarMapa(){
+    if(!mapa) return;
+    if(modoMundo) mapa.setView([10, 0], 2);
+    else mapa.setView([8.5, -66], 5);
 }
 function actualizarMapa(sismos){
     if(!mapa || !capaSismos) return;
@@ -915,7 +1044,9 @@ function actualizarMapa(sismos){
         capaSismos.addLayer(m);
         if(i===0) m.openPopup();
     });
-    if(conCoord.length) mapa.setView([conCoord[0].lat, conCoord[0].lon], mapa.getZoom());
+    // En modo Mundo NO se re-centra: el mapa saltaría de continente en cada comprobación y no
+    // dejaría mirar nada. En modo Venezuela todo cae en la misma zona, así que centrar ayuda.
+    if(conCoord.length && !modoMundo) mapa.setView([conCoord[0].lat, conCoord[0].lon], mapa.getZoom());
 }
 function cuando(ms){
     const diff=Date.now()-ms, min=Math.round(diff/60000);
@@ -939,22 +1070,38 @@ function pintar(sismos){
     }).join('');
 }
 
-async function chequear(){
-    if(!monitoreoActivo) return;
-    const [u,f]=await Promise.all([fetchUSGS(),fetchFunvisis()]);
-    let todos=dedupe([...u,...f].sort((a,b)=>b.ms-a.ms));
-    document.getElementById('ultima-act').textContent='Última comprobación: '+new Date().toLocaleTimeString('es-VE');
+// El mismo sismo puede llegar por EMSC, USGS y FUNVISIS con tres identificadores distintos:
+// para la alarma cuenta el sismo, no el número que le pone cada agencia.
+function yaVisto(s){
+    if(idsVistos.has(s.id)) return true;
+    return vistosRec.some(o=>Math.abs(o.ms-s.ms)<120000 && Math.abs((o.mag||0)-(s.mag||0))<0.6
+        && !(distKm(o,s)>150));
+}
+function marcarVisto(s){ idsVistos.add(s.id); vistosRec.unshift(s); if(vistosRec.length>300) vistosRec.pop(); }
+
+// Pinta y decide la alarma con todo lo que hay ahora mismo: lo empujado en vivo y lo sondeado.
+function refrescar(){
+    const crudos=[...sismosEnVivo, ...ultimoSondeo].sort((a,b)=>b.ms-a.ms);
+    const todos=dedupe(crudos);
     if(!todos.length){ pintar([]); return; }
 
     // ¿algo nuevo por encima del umbral? -> alarma (nunca en la primera carga)
     if(!primeraCarga){
-        const nuevosFuertes=todos.filter(s=>!idsVistos.has(s.id) && s.mag>=umbralAlarma);
+        const nuevosFuertes=todos.filter(s=>!yaVisto(s) && s.mag>=umbralAlarma);
         if(nuevosFuertes.length){ hacerSonarAlarma(); alarmaVisual(); }
     }
-    todos.forEach(s=>idsVistos.add(s.id));
+    crudos.forEach(marcarVisto);
     primeraCarga=false;
     pintar(todos);
     actualizarMapa(todos);
+}
+
+async function chequear(){
+    if(!monitoreoActivo) return;
+    const [u,f]=await Promise.all([fetchUSGS(),fetchFunvisis()]);
+    ultimoSondeo=[...u,...f];
+    document.getElementById('ultima-act').textContent='Última comprobación: '+new Date().toLocaleTimeString('es-VE');
+    refrescar();
 }
 
 async function activarSistema(){
@@ -967,10 +1114,13 @@ async function activarSistema(){
     btn.textContent='✅ MONITOREANDO EN TIEMPO REAL';
     btn.classList.add('on');
     crearMapa();
+    abrirEmsc();
     await pedirWakeLock();
     chequear();
     setInterval(chequear,INTERVALO_MS);
 }
+
+initModo();
 </script>
 </body>
 </html>
