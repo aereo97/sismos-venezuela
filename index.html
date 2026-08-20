@@ -751,8 +751,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
 
         /* Buscador de paises: la lista se superpone al mapa, por eso el contenedor va relativo. */
         .buscador { position:relative; margin-bottom:8px; }
-        .buscador input { width:100%; box-sizing:border-box; padding:12px 14px; font-size:16px; border-radius:10px;
-                          background:#1a1d25; color:#e8ecf3; border:1px solid var(--line); }
+        /* Marco claro y letra viva: en fondo oscuro, una caja con borde tenue no se ve que es una caja. */
+        .buscador input { width:100%; box-sizing:border-box; padding:13px 14px; font-size:16px; border-radius:10px;
+                          background:#1a1d25; color:var(--txt); border:2px solid #6b7794; }
+        .buscador input::placeholder { color:#c3ccdb; opacity:1; }
+        .buscador input:focus { outline:none; border-color:var(--amber); }
         .sugerencias { position:absolute; left:0; right:0; top:100%; z-index:1000;
                        background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
         .sugerencias:empty { display:none; }
