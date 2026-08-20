@@ -783,6 +783,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
         .leaflet-container { background:#191c24; }
         .aviso-legal { background:#20222b; border:1px solid var(--line); border-left:4px solid #8d7333; color:#cbd3e0; font-size:clamp(14px, 3.7vw, 15.5px); line-height:1.6; padding:13px 15px; border-radius:10px; margin-bottom:16px; }
         .aviso-legal a { color:#8ab4f8; }
+        /* Idioma en la cabecera: es lo primero que necesita quien no lee espanol,
+           asi que va antes del aviso legal y en una sola fila. */
+        .idioma-top { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+        .idioma-top label { margin:0; font-size:clamp(14px, 3.7vw, 15px); color:var(--muted); }
+        .idioma-top .modo-btn { flex:0 0 auto; padding:9px 15px; font-size:clamp(15px, 4vw, 16px); }
         .pie-firma { text-align:center; color:#8b93a3; font-size:13px; letter-spacing:.4px; margin:2px 0 18px; }
         .acordeon { background:var(--card); margin-top:14px; border-radius:12px; overflow:hidden; border:1px solid var(--line); }
         .cabecera { padding:14px 15px; cursor:pointer; font-weight:bold; font-size:clamp(16px, 4.2vw, 17.5px); line-height:1.35; border-bottom:1px solid var(--line); }
@@ -810,6 +815,12 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <div class="container">
     <h1 id="titulo">🌍 Monitor Sísmico</h1>
     <div class="autor" id="fuentes">Fuentes oficiales: USGS (EE.UU.) + EMSC (en vivo) + FUNVISIS (Venezuela)</div>
+
+    <div class="idioma-top">
+        <label data-i18n="idioma_label">Idioma</label>
+        <button id="lang-es" class="modo-btn on" onclick="cambiarIdioma('es')">🇪🇸 ES</button>
+        <button id="lang-en" class="modo-btn" onclick="cambiarIdioma('en')">🇬🇧 EN</button>
+    </div>
 
     <div class="aviso-legal" data-i18n-html="aviso">
         ⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo.
@@ -850,11 +861,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
     </div>
 
     <div class="controls">
-        <label data-i18n="idioma_label">Idioma</label>
-        <div class="modo-tabs" style="margin-bottom:12px;">
-            <button id="lang-es" class="modo-btn on" onclick="cambiarIdioma('es')">🇪🇸 ES</button>
-            <button id="lang-en" class="modo-btn" onclick="cambiarIdioma('en')">🇬🇧 EN</button>
-        </div>
         <div class="hint" id="hint-modo"></div>
     </div>
 
