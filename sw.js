@@ -2,7 +2,7 @@
 // Objetivo: que la app abra aunque no haya red (el ultimo listado queda en pantalla)
 // y que se pueda instalar en el telefono. NO cachea datos sismicos: esos siempre van a la red,
 // porque servir un sismo viejo desde cache seria peor que no servir nada.
-const VERSION = 'sismos-v1';
+const VERSION = 'sismos-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
                './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 
@@ -11,8 +11,15 @@ self.addEventListener('install', ev => {
         caches.open(VERSION)
             .then(c => c.addAll(SHELL))
             .catch(() => {})            // si un fichero falla, el SW se instala igual
-            .then(() => self.skipWaiting())
     );
+    // Aqui NO se llama a skipWaiting: el service worker nuevo se queda esperando a proposito.
+    // Esa espera es lo que la pagina detecta para sacar la ventana de "hay una version nueva".
+    // Solo se adelanta cuando la persona pulsa el boton (mensaje SKIP_WAITING de abajo).
+});
+
+// La pagina pide el relevo cuando la persona pulsa "Actualizar". Sin ese boton, no pasa nada.
+self.addEventListener('message', ev => {
+    if (ev.data && ev.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', ev => {

@@ -789,6 +789,21 @@ svg.leaflet-image-layer.leaflet-interactive path {
         .contenido { padding:14px 15px; display:none; font-size:clamp(15px, 3.9vw, 16.5px); color:#c3ccdb; line-height:1.6; }
         h2.sec { font-size:14px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin:22px 0 8px; }
         button:focus-visible, .cabecera:focus-visible, input:focus-visible { outline:3px solid #8ab4f8; outline-offset:2px; }
+
+        /* Ventana de "hay una version nueva". Va por DEBAJO de las alertas de sismo (z 2000-2010):
+           si suena la alarma mientras esta abierta, manda la alarma. */
+        #update-fondo { display:none; position:fixed; inset:0; z-index:1900; background:rgba(0,0,0,.6);
+                        align-items:center; justify-content:center; padding:20px; }
+        #update-fondo.ver { display:flex; }
+        #update-caja { background:var(--panel); border:1px solid var(--line); border-radius:16px; max-width:400px; width:100%;
+                       padding:22px 20px calc(20px + env(safe-area-inset-bottom)); text-align:center;
+                       box-shadow:0 12px 40px rgba(0,0,0,.6); }
+        #update-caja .u-tit { font-size:clamp(18px, 4.8vw, 20px); font-weight:bold; margin-bottom:8px; }
+        #update-caja .u-txt { font-size:clamp(15px, 3.9vw, 16px); color:#c3ccdb; line-height:1.55; margin-bottom:18px; }
+        /* Botones grandes: esto lo pulsa gente con el telefono en la mano y prisa. */
+        #update-caja button { width:100%; padding:15px 12px; font-size:clamp(16px, 4.2vw, 17px); border-radius:12px; cursor:pointer; }
+        #update-si { background:#28402a; color:#e8f5e9; border:1px solid var(--ok); font-weight:bold; }
+        #update-no { background:transparent; color:var(--muted); border:none; margin-top:6px; padding:12px; }
     </style>
 </head>
 <body>
@@ -904,6 +919,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div id="alerta-banner" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2000;background:#b71c1c;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.05em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)"></div>
     <div id="alerta-tsunami" onclick="this.style.display='none'" style="display:none;position:fixed;top:0;left:0;right:0;z-index:2010;background:#01579b;color:#fff;font-weight:bold;text-align:center;padding:12px 16px;font-size:1.02em;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5);line-height:1.5"></div>
     <div id="alerta-ambar" onclick="this.style.display='none'" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:1990;background:#ff8f00;color:#000;font-weight:bold;text-align:center;padding:10px 16px;cursor:pointer;box-shadow:0 -2px 8px rgba(0,0,0,.5)"></div>
+    <div id="update-fondo" role="dialog" aria-modal="true" aria-labelledby="update-tit">
+        <div id="update-caja">
+            <div class="u-tit" id="update-tit" data-i18n="update_tit">✨ Hay una versión nueva</div>
+            <div class="u-txt" data-i18n="update_txt">Ya está lista una versión mejorada de la app. Se instala sola en un segundo.</div>
+            <button id="update-si" onclick="aplicarUpdate()" data-i18n="update_si">Actualizar ahora</button>
+            <button id="update-no" onclick="cerrarUpdate()" data-i18n="update_no">Ahora no</button>
+        </div>
+    </div>
     <div id="lista"><p style="text-align:center;color:var(--muted)"><span data-i18n="pausa">El sistema está en pausa. Pulsa el botón rojo.</span></p></div>
 
     <div id="replicas-panel" class="controls" style="display:none; margin-top:14px;">
@@ -982,6 +1005,9 @@ let idioma='es';
 const I18N={
 es:{
  doc_title:'Monitor Sísmico', idioma_label:'Idioma',
+ update_tit:'✨ Hay una versión nueva',
+ update_txt:'Ya está lista una versión mejorada de la app. Se instala sola en un segundo y no pierdes nada de lo que tienes configurado.',
+ update_si:'Actualizar ahora', update_no:'Ahora no',
  titulo:'🌍 Monitor Sísmico',
  fuentes:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
  modo_hint:'Sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
@@ -1021,6 +1047,9 @@ es:{
 },
 en:{
  doc_title:'Seismic Monitor', idioma_label:'Language',
+ update_tit:'✨ A new version is ready',
+ update_txt:'An improved version of the app is available. It installs by itself in a second and you keep all your settings.',
+ update_si:'Update now', update_no:'Not now',
  titulo:'🌍 Seismic Monitor',
  fuentes:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
  modo_hint:'Earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
@@ -1259,8 +1288,68 @@ function avisoSensorSolo(){
 // ni servidor de notificaciones, ni nada que registrar en ningun sitio.
 let promptInstalar=null;
 
+// ---- Aviso de version nueva ----
+// Cuando subimos una version, el navegador se baja el sw.js nuevo y lo deja ESPERANDO
+// (el sw.js ya no se cuela solo). Esa espera es la senal: hay algo nuevo listo.
+// Entonces sale la ventana. Nadie actualiza sin pulsar el boton.
+let swEspera=null;          // el service worker nuevo, parado, esperando el relevo
+let recargando=false;       // para no recargar dos veces si llegan dos avisos
+
+function mostrarUpdate(reg){
+    if(!reg || !reg.waiting) return;
+    // Sin controller es la primera instalacion: no hay nada viejo que reemplazar, no molestamos.
+    if(!navigator.serviceWorker.controller) return;
+    swEspera=reg.waiting;
+    document.getElementById('update-fondo').classList.add('ver');
+}
+
+function cerrarUpdate(){
+    document.getElementById('update-fondo').classList.remove('ver');
+    // No se pierde: sigue esperando y volvera a salir la proxima vez que abra la app.
+}
+
+function aplicarUpdate(){
+    const btn=document.getElementById('update-si');
+    if(!swEspera){ location.reload(); return; }
+    btn.disabled=true;
+    btn.textContent='…';
+    swEspera.postMessage({type:'SKIP_WAITING'});
+    // Si el relevo no llega en 6 s (navegador raro), recargamos igual: peor es dejarla colgada.
+    setTimeout(()=>{ if(!recargando){ recargando=true; location.reload(); } }, 6000);
+}
+
 if('serviceWorker' in navigator){
-    window.addEventListener('load',()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+    window.addEventListener('load',()=>{
+        navigator.serviceWorker.register('sw.js').then(reg=>{
+            if(!reg) return;
+            mostrarUpdate(reg);                               // ya habia una esperando de antes
+            reg.addEventListener('updatefound',()=>{
+                const nuevo=reg.installing;
+                if(!nuevo) return;
+                nuevo.addEventListener('statechange',()=>{
+                    if(nuevo.state==='installed') mostrarUpdate(reg);
+                });
+            });
+            // Esta app se queda abierta dias vigilando. Sin esto no se enteraria de una version
+            // nueva hasta cerrarla y volver a abrirla. Son 2 KB cada media hora.
+            setInterval(()=>{ reg.update().catch(()=>{}); }, 30*60*1000);
+        }).catch(()=>{});
+    });
+    // El relevo ya esta hecho: recargar para que se vea la version nueva.
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+        if(recargando) return;
+        recargando=true;
+        location.reload();
+    });
+    // Al volver a la app despues de un rato, mirar si hay algo nuevo.
+    document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState!=='visible') return;
+        navigator.serviceWorker.getRegistration().then(reg=>{
+            if(!reg) return;
+            mostrarUpdate(reg);
+            reg.update().catch(()=>{});
+        }).catch(()=>{});
+    });
 }
 
 window.addEventListener('beforeinstallprompt', ev=>{
