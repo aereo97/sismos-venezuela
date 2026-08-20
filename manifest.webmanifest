@@ -1,7 +1,7 @@
 {
-  "name": "Sismos Venezuela",
-  "short_name": "Sismos",
-  "description": "Monitor sismico en tiempo real de Venezuela y el mundo, con alarma sonora.",
+  "name": "Monitor Sísmico",
+  "short_name": "Monitor Sísmico",
+  "description": "Sismos de todo el mundo, con alarma sonora.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

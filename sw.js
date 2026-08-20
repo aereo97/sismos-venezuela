@@ -1,4 +1,4 @@
-// Service worker de Sismos Venezuela.
+// Service worker del Monitor Sismico.
 // Objetivo: que la app abra aunque no haya red (el ultimo listado queda en pantalla)
 // y que se pueda instalar en el telefono. NO cachea datos sismicos: esos siempre van a la red,
 // porque servir un sismo viejo desde cache seria peor que no servir nada.

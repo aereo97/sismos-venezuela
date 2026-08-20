@@ -677,7 +677,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	}
 
 </style>
-    <title>Monitor Sísmico - Venezuela</title>
+    <title>Monitor Sísmico</title>
     <style>
         :root { --bg:#111318; --panel:#1a1d25; --card:#232733; --line:#333a49; --txt:#f2f4f8; --muted:#98a2b6;
                 --amber:#ffca28; --ok:#4caf50; --rojo:#f44336; }
@@ -749,6 +749,17 @@ svg.leaflet-image-layer.leaflet-interactive path {
                     background:#1a1d25; color:#c3ccdb; border:1px solid var(--line); }
         .modo-btn.on { background:#28402a; color:#e8f5e9; border-color:var(--ok); font-weight:bold; }
 
+        /* Buscador de paises: la lista se superpone al mapa, por eso el contenedor va relativo. */
+        .buscador { position:relative; margin-bottom:8px; }
+        .buscador input { width:100%; box-sizing:border-box; padding:12px 14px; font-size:16px; border-radius:10px;
+                          background:#1a1d25; color:#e8ecf3; border:1px solid var(--line); }
+        .sugerencias { position:absolute; left:0; right:0; top:100%; z-index:1000;
+                       background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+        .sugerencias:empty { display:none; }
+        .sug { display:block; width:100%; text-align:left; padding:12px 14px; font-size:16px; cursor:pointer;
+               background:none; color:#e8ecf3; border:none; border-bottom:1px solid var(--line); }
+        .sug:last-child { border-bottom:none; }
+
         .sismo { background:var(--card); padding:13px 15px; border-radius:12px; border-left:5px solid var(--ok); margin-top:10px; display:flex; align-items:center; gap:14px; border-top:1px solid var(--line); border-right:1px solid var(--line); border-bottom:1px solid var(--line); }
         .sismo.med { border-left-color:#ff9800; }
         .sismo.high { border-left-color:var(--rojo); }
@@ -779,8 +790,8 @@ svg.leaflet-image-layer.leaflet-interactive path {
 </head>
 <body>
 <div class="container">
-    <h1 id="titulo">🌎 Monitor Sísmico — Venezuela</h1>
-    <div class="autor" id="fuentes">Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela)</div>
+    <h1 id="titulo">🌍 Monitor Sísmico</h1>
+    <div class="autor" id="fuentes">Fuentes oficiales: USGS (EE.UU.) + EMSC (en vivo) + FUNVISIS (Venezuela)</div>
 
     <div class="aviso-legal" data-i18n-html="aviso">
         ⚠️ <b>Aviso:</b> Herramienta gratuita y <b>sin fines de lucro</b>, de carácter informativo.
@@ -825,13 +836,6 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <div class="modo-tabs" style="margin-bottom:12px;">
             <button id="lang-es" class="modo-btn on" onclick="cambiarIdioma('es')">🇪🇸 ES</button>
             <button id="lang-en" class="modo-btn" onclick="cambiarIdioma('en')">🇬🇧 EN</button>
-            <button id="lang-it" class="modo-btn" onclick="cambiarIdioma('it')">🇮🇹 IT</button>
-            <button id="lang-pt" class="modo-btn" onclick="cambiarIdioma('pt')">🇵🇹 PT</button>
-        </div>
-        <label data-i18n="zona_label">Zona vigilada</label>
-        <div class="modo-tabs">
-            <button id="btn-vzla" class="modo-btn on" onclick="cambiarModo(false)">🇻🇪 Venezuela</button>
-            <button id="btn-mundo" class="modo-btn" onclick="cambiarModo(true)">🌍 Mundo</button>
         </div>
         <div class="hint" id="hint-modo"></div>
     </div>
@@ -879,6 +883,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
     <div class="modo-tabs" style="margin:10px 0 6px;">
         <button id="capa-placas" class="modo-btn" onclick="alternarCapa('placas')" data-i18n="capa_placas">🗺️ Placas</button>
         <button id="capa-fallas" class="modo-btn" onclick="alternarCapa('fallas')" data-i18n="capa_fallas">⛓️ Fallas</button>
+    </div>
+    <div class="buscador">
+        <input type="text" id="buscar-pais" autocomplete="off" spellcheck="false"
+               oninput="buscarPais(this.value)" data-i18n-ph="buscar_ph" placeholder="Buscar un país…">
+        <div id="buscar-lista" class="sugerencias"></div>
     </div>
     <div id="mapa"></div>
     <div id="leyenda-capas" class="hint" style="display:none;margin-top:6px;line-height:1.7;">
@@ -956,12 +965,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
 <script>
 'use strict';
 // ---- Configuración ----
-const VZLA_BBOX = { minLat: 0, maxLat: 13, minLon: -74, maxLon: -59 }; // caja que cubre Venezuela + costa + Trinidad
 const INTERVALO_MS = 60000;
-// Modo Mundo: USGS sin recorte de caja. El planeta entero da decenas de sismos al día, así que
-// se piden solo los de magnitud media para arriba; con minmagnitude 1 la lista sería ilegible.
+// La app mira el planeta entero. Eso da decenas de sismos al día, así que se piden solo los de
+// magnitud media para arriba; con minmagnitude 1 la lista sería ilegible.
 const MUNDO_MINMAG = 4.0;       // igual que la alarma de siempre: lo que suena, se ve
-const MODO_KEY = 'sismos-zona';
 // Tiempo real: EMSC empuja cada sismo por WebSocket en segundos, en cuanto una agencia lo publica.
 // El sondeo a USGS cada minuto se queda como respaldo por si el socket se cae.
 const EMSC_WS = 'wss://www.seismicportal.eu/standing_order/websocket';
@@ -971,17 +978,16 @@ const IDIOMA_KEY='sismos-idioma';
 let idioma='es';
 const I18N={
 es:{
- doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigilada',
- titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
- fuentes_vzla:'Fuentes oficiales: USGS (EE.UU.) + FUNVISIS (Venezuela) + EMSC (en vivo) · Temperatura: NASA POWER',
- fuentes_mundo:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
- modo_hint_vzla:'Venezuela: todo lo que se mueve en el país y su costa, por pequeño que sea.',
- modo_hint_mundo:'Mundo: sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
+ doc_title:'Monitor Sísmico', idioma_label:'Idioma',
+ titulo:'🌍 Monitor Sísmico',
+ fuentes:'Fuentes oficiales: USGS (EE.UU.) + EMSC (Europa, en vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
+ modo_hint:'Sismos de todo el planeta desde magnitud {mag}, en vivo por EMSC en cuanto los publica cualquier agencia.',
  activar_btn:'🛡️ TOCA AQUÍ PARA ACTIVAR LA PROTECCIÓN', monitoreando:'✅ PROTECCIÓN ACTIVADA — VIGILANDO',
  sin_activar:'Sin activar todavía.', ultima_comp:'Última comprobación: ',
  umbral_label:'Sonar la alarma solo desde magnitud',
  umbral_hint:'⚠️ Para que la alarma suene, mantén esta pantalla abierta y encendida. Los sismos pequeños siempre aparecen en la lista; la alarma sonora salta desde la magnitud elegida.',
  mapa_titulo:'Mapa en tiempo real', lista_titulo:'Últimos movimientos',
+ buscar_ph:'Buscar un país…',
  pausa:'El sistema está en pausa. Pulsa el botón rojo.', sin_sismos:'Sin sismos recientes en la zona.',
  prof:'km prof.', hace_dias:'hace {n} días', toca_temp:'Toca para ver la temperatura del epicentro',
  ahora:'ahora mismo', hace_min:'hace {n} min', hace_h:'hace {n} h',
@@ -1008,20 +1014,19 @@ es:{
  firma:'Un proyecto de Aereo Labs',
  garantia:'⚖️ La app se ofrece tal cual, sin garantía de disponibilidad ni de exactitud de los datos.',
  privacidad:'🔒 <b>Privacidad:</b> esta app no tiene servidor propio ni cuenta de usuario. Tu navegador consulta directamente a USGS, EMSC, NASA POWER y al mapa de OpenStreetMap, y esos servicios ven la dirección IP desde la que te conectas, como en cualquier página web. Tu ubicación y las medidas del sensor de movimiento se quedan en el teléfono: no se envían a ningún sitio.',
- creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Fallas activas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
+ creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Fallas activas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Recuadros de países: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (dominio público). Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
 },
 en:{
- doc_title:'Seismic Monitor', idioma_label:'Language', zona_label:'Watched area',
- titulo_vzla:'🌎 Seismic Monitor — Venezuela', titulo_mundo:'🌍 Seismic Monitor — World',
- fuentes_vzla:'Official sources: USGS (USA) + FUNVISIS (Venezuela) + EMSC (live) · Temperature: NASA POWER',
- fuentes_mundo:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
- modo_hint_vzla:'Venezuela: everything that moves in the country and its coast, however small.',
- modo_hint_mundo:'World: earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
+ doc_title:'Seismic Monitor', idioma_label:'Language',
+ titulo:'🌍 Seismic Monitor',
+ fuentes:'Official sources: USGS (USA) + EMSC (Europe, live) + FUNVISIS (Venezuela) · Temperature: NASA POWER',
+ modo_hint:'Earthquakes across the planet from magnitude {mag}, pushed live by EMSC as soon as any agency publishes them.',
  activar_btn:'🛡️ TAP HERE TO TURN ON PROTECTION', monitoreando:'✅ PROTECTION ON — WATCHING',
  sin_activar:'Not started yet.', ultima_comp:'Last check: ',
  umbral_label:'Sound the alarm only from magnitude',
  umbral_hint:'⚠️ For the alarm to sound, keep this screen open and on. Small quakes always appear in the list; the audible alarm fires from the chosen magnitude.',
  mapa_titulo:'Live map', lista_titulo:'Latest earthquakes',
+ buscar_ph:'Search for a country…',
  pausa:'The system is paused. Press the red button.', sin_sismos:'No recent earthquakes in the area.',
  prof:'km deep', hace_dias:'{n} days ago', toca_temp:'Tap to see the epicenter temperature',
  ahora:'just now', hace_min:'{n} min ago', hace_h:'{n} h ago',
@@ -1048,87 +1053,7 @@ en:{
  firma:'A project by Aereo Labs',
  garantia:'⚖️ The app is provided as is, with no guarantee of availability or of the accuracy of the data.',
  privacidad:'🔒 <b>Privacy:</b> this app has no server of its own and no user account. Your browser queries USGS, EMSC, NASA POWER and the OpenStreetMap map directly, and those services see the IP address you connect from, as on any website. Your location and the motion sensor readings stay on the phone: they are never sent anywhere.',
- creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Tectonic plates: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Active faults: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Thanks to all of them: without their open data this app would not exist.'
-},
-it:{
- doc_title:'Monitor Sismico', idioma_label:'Lingua', zona_label:'Zona sorvegliata',
- titulo_vzla:'🌎 Monitor Sismico — Venezuela', titulo_mundo:'🌍 Monitor Sismico — Mondo',
- fuentes_vzla:'Fonti ufficiali: USGS (USA) + FUNVISIS (Venezuela) + EMSC (in diretta) · Temperatura: NASA POWER',
- fuentes_mundo:'Fonti ufficiali: USGS (USA) + EMSC (Europa, in diretta) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
- modo_hint_vzla:'Venezuela: tutto ciò che si muove nel paese e sulla sua costa, per quanto piccolo.',
- modo_hint_mundo:'Mondo: terremoti di tutto il pianeta da magnitudo {mag}, in diretta via EMSC appena un ente li pubblica.',
- activar_btn:'🛡️ TOCCA QUI PER ATTIVARE LA PROTEZIONE', monitoreando:'✅ PROTEZIONE ATTIVA — SORVEGLIO',
- sin_activar:'Non ancora attivato.', ultima_comp:'Ultimo controllo: ',
- umbral_label:"Suona l'allarme solo da magnitudo",
- umbral_hint:"⚠️ Perché l'allarme suoni, tieni questo schermo aperto e acceso. I terremoti piccoli compaiono sempre nella lista; l'allarme sonoro scatta dalla magnitudo scelta.",
- mapa_titulo:'Mappa in tempo reale', lista_titulo:'Ultimi terremoti',
- pausa:'Il sistema è in pausa. Premi il pulsante rosso.', sin_sismos:'Nessun terremoto recente nella zona.',
- prof:'km prof.', hace_dias:'{n} giorni fa', toca_temp:"Tocca per vedere la temperatura dell'epicentro",
- ahora:'proprio ora', hace_min:'{n} min fa', hace_h:'{n} h fa',
- pantalla_off:'Schermo —', pantalla_on:'Schermo attivo 🔆',
- emsc_vivo:'EMSC ⚡ in diretta', emsc_rec:'EMSC ❌ riconnessione',
- rep_marca:'📉 La previsione delle repliche qui sotto è di QUESTA scossa',
- rep_titulo:'Previsione delle repliche', rep_principal:'Scossa principale', rep_prob24:'Probabilità di una replica entro 24 h', rep_prob7:'Probabilità di una replica entro 7 giorni', rep_mayor:'Replica più forte attesa', rep_esperadas:'Repliche attese', rep_observadas:'Repliche già registrate', rep_prox:'nelle prossime 24 h', rep_nota:'Stima statistica calcolata sul tuo telefono con le leggi di Omori-Utsu e Båth e il modello generico di Reasenberg-Jones. Dice quante repliche aspettarsi, NON ne predice nessuna in particolare né quando. Le repliche forti possono far crollare ciò che la scossa principale ha lesionato: non entrare in edifici danneggiati.',
- rep_ayuda_btn:"Che cosa significa?", rep_ayuda_txt:"Quel riquadro non parla del terremoto che hai appena visto nell'elenco. Parla della scossa più forte al mondo negli ultimi 14 giorni — adesso quella di <b>M {Mm} a {loc}</b> — e di ciò che di solito arriva DOPO una scossa così.\n\nDopo un terremoto grande la terra continua ad assestarsi e dà scosse più piccole: le repliche. Si sa che calano poco a poco, e da quel conto escono i numeri qui sopra:\n\n• <b>Probabilità entro 24 h e 7 giorni:</b> su 100 volte che succede una cosa simile, in quante c'è almeno una replica di M {M1} o più. Non dice né il giorno né l'ora.\n• <b>Repliche attese:</b> quante di M {M2} o più ci si può aspettare domani. È una media: possono essere di più, o nessuna.\n• <b>Replica più forte attesa:</b> la maggiore resta quasi sempre un punto sotto la principale, intorno a M {mayor}.\n• <b>Repliche già registrate:</b> quelle davvero contate intorno, fino a {radio} km dall'epicentro.\n\nL'importante: questo <b>NON dice quando né dove tremerà</b>, e non è un allarme. L'unica cosa da farne: se un edificio è rimasto lesionato dalla scossa grande, non entrarci. Sono le repliche a farlo cadere.",
- tsu_badge:'🌊 Rischio tsunami', tsu_local:'Possibile tsunami locale sulla costa vicina', tsu_regional:'Rischio di tsunami regionale', tsu_oceanico:'Rischio di tsunami su tutto l\'oceano', tsu_marino:'sisma in mare', tsu_oficial:'Avvisi ufficiali', tsu_nota:'Indicatore informativo calcolato sul tuo telefono a partire da magnitudo, profondità e se l\'epicentro cade in mare. NON è un allerta tsunami ufficiale.',
- capa_placas:'🗺️ Placche', capa_fallas:'⛓️ Faglie', leyenda_placas:'Margine di placca tettonica', leyenda_inversa:'Faglia inversa / subduzione', leyenda_rumbo:'Faglia trascorrente', leyenda_normal:'Faglia normale', capa_cargando:'Carico il livello…', capa_error:'Non è stato possibile caricare il livello.', borde_placa:'Margine di placca', falla_activa:'Faglia attiva',
- pwa_label:'App e avvisi', instalar_btn:'⬇️ Installa l\'app sul telefono', avisos_btn:'🔔 Attiva gli avvisi', pwa_hint:'Installala e riceverai l\'avviso anche con l\'app in secondo piano. Gli avvisi nascono nel telefono stesso: nessun server di notifiche, nessun account da registrare.', avisos_on:'🔔 Avvisi attivi: ti avvisa anche mentre usi un\'altra app.', avisos_no:'Questo browser non consente gli avvisi. Su iPhone installa prima l\'app da Condividi → Aggiungi a Home.', avisos_negado:'Avvisi bloccati. Attivali nelle impostazioni del browser per questo sito.', instalada:'✅ App installata.', aviso_sismo:'Sisma rilevato',
- sensor_quieto:'📳 Sensore attivo — il telefono è posato e fermo: sorveglia.', sensor_movido:'📳 Sensore attivo — il telefono si muove, quindi non sorveglia. Lascialo fermo su un tavolo mezzo minuto e riparte da solo.',
- instalar_grande:'📲 INSTALLA SUL TUO TELEFONO', ya_instalada:'✅ È GIÀ NELLA SCHERMATA HOME', guia_add:'Aggiungi', guia_tit:'Come metterla nella schermata Home', guia_p1:'Passo 1', guia_p2:'Passo 2', guia_p3:'Passo 3', guia_1:'Tocca il pulsante di condivisione, accanto alla barra degli indirizzi.', guia_2:'Scorri la lista e tocca «Aggiungi a Home».', guia_3:'Tocca «Aggiungi», in alto a destra. L\'icona è nella tua schermata.', guia_nota:'Da quell\'icona l\'app si apre a schermo intero e gli avvisi funzionano meglio.',
- pasos_label:'Che cosa è stato attivato', paso1_tit:'Sorveglianza e allarme', paso1_ok:'✅ Fatto: l\'app sorveglia e l\'allarme suonerà.', avisos_tit:'Avvisi anche con l\'app in secondo piano', paso_pendiente:'👉 Manca un tocco: premi il pulsante qui sopra.', paso_instalada:'✅ Fatto: è già nella schermata Home.', paso_ios:'👉 Per averla nella schermata Home: tocca il pulsante di condivisione del browser (⬆️) e scegli «Aggiungi a Home».',
- sensor_label:'Il tuo telefono come sensore', sensor_btn:'📳 Usa il movimento del telefono', sensor_hint:'Il telefono rileva la propria vibrazione. Se trema con un pattern da sisma e nello stesso momento ne risulta uno vicino, l\'allarme scatta subito. La misura non esce dal telefono.', sensor_on:'📳 Sensore attivo — sorveglio il movimento del telefono.', sensor_no:'Questo telefono o browser non consente di leggere il movimento.', sensor_negado:'Permesso negato: nessun accesso al movimento del telefono.', sensor_temblor:'📳 Il tuo telefono sta tremando', sensor_confirmado:'SISMA! Il telefono trema e ne risulta uno vicino',
- posible_sismo:'Possibile sisma non confermato (la gente lo ha sentito)', testimonios:'testimonianze', sin_confirmar:'non confermato',
- temp_titulo:"🌡️ Temperatura dell'epicentro", temp_cargando:'Interrogo NASA POWER…',
- temp_fuente:'Temperatura superficiale (TS, °C) — dati del progetto NASA POWER (power.larc.nasa.gov). Confronto esplorativo: la scienza non ha dimostrato che la temperatura preveda i terremoti.',
- temp_error:'Impossibile scaricare la temperatura (NASA POWER non risponde). Riprova tra poco.', temp_sismo:'sisma',
- acc_ios_t:'🍎 Installa su iPhone (Safari)',
- acc_ios_c:'Tocca "Condividi" (il riquadro con la freccia) → "Aggiungi alla schermata Home". Aprila dall\'icona così occupa tutto lo schermo.',
- acc_and_t:'🤖 Installa su Android (Chrome)', acc_and_c:'Tocca i tre puntini (⋮) → "Installa app".',
- aviso:'⚠️ <b>Avviso:</b> strumento gratuito e <b>senza fini di lucro</b>, a carattere informativo. <b>Non è un sistema ufficiale di allerta precoce.</b> Usa dati pubblici di USGS e FUNVISIS che possono ritardare, fallire o essere incompleti. <b>Non sostituisce la Protezione Civile né i canali ufficiali.</b> Non garantisce di avvisare di tutti i terremoti né di funzionare offline. Usala sotto la tua responsabilità.',
- firma:'Un progetto di Aereo Labs',
- garantia:'⚖️ L\'app è offerta così com\'è, senza garanzia di disponibilità né di esattezza dei dati.',
- privacidad:'🔒 <b>Privacy:</b> questa app non ha un server proprio né un account utente. Il tuo browser interroga direttamente USGS, EMSC, NASA POWER e la mappa di OpenStreetMap, e quei servizi vedono l\'indirizzo IP da cui ti colleghi, come in qualsiasi sito. La tua posizione e le misure del sensore di movimento restano nel telefono: non vengono inviate da nessuna parte.',
- creditos:'📊 <b>Da dove vengono i dati:</b> terremoti da <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fondazione Venezuelana di Ricerche Sismologiche) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismologico Euro-Mediterraneo, in diretta). Temperatura da <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mappa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Placche tettoniche: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Faglie attive: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Grazie a tutti loro: senza i loro dati aperti questa app non esisterebbe.'
-},
-pt:{
- doc_title:'Monitor Sísmico', idioma_label:'Idioma', zona_label:'Zona vigiada',
- titulo_vzla:'🌎 Monitor Sísmico — Venezuela', titulo_mundo:'🌍 Monitor Sísmico — Mundo',
- fuentes_vzla:'Fontes oficiais: USGS (EUA) + FUNVISIS (Venezuela) + EMSC (ao vivo) · Temperatura: NASA POWER',
- fuentes_mundo:'Fontes oficiais: USGS (EUA) + EMSC (Europa, ao vivo) + FUNVISIS (Venezuela) · Temperatura: NASA POWER',
- modo_hint_vzla:'Venezuela: tudo o que se move no país e na sua costa, por menor que seja.',
- modo_hint_mundo:'Mundo: sismos de todo o planeta a partir da magnitude {mag}, ao vivo via EMSC assim que qualquer agência os publica.',
- activar_btn:'🛡️ TOQUE AQUI PARA ATIVAR A PROTEÇÃO', monitoreando:'✅ PROTEÇÃO ATIVA — A VIGIAR',
- sin_activar:'Ainda não ativado.', ultima_comp:'Última verificação: ',
- umbral_label:'Tocar o alarme só a partir da magnitude',
- umbral_hint:'⚠️ Para o alarme tocar, mantenha esta tela aberta e ligada. Os sismos pequenos sempre aparecem na lista; o alarme sonoro dispara a partir da magnitude escolhida.',
- mapa_titulo:'Mapa em tempo real', lista_titulo:'Últimos sismos',
- pausa:'O sistema está em pausa. Pressione o botão vermelho.', sin_sismos:'Sem sismos recentes na zona.',
- prof:'km prof.', hace_dias:'há {n} dias', toca_temp:'Toque para ver a temperatura do epicentro',
- ahora:'agora mesmo', hace_min:'há {n} min', hace_h:'há {n} h',
- pantalla_off:'Tela —', pantalla_on:'Tela ativa 🔆',
- emsc_vivo:'EMSC ⚡ ao vivo', emsc_rec:'EMSC ❌ reconectando',
- rep_marca:'📉 A previsão de réplicas abaixo é DESTE sismo',
- rep_titulo:'Previsão de réplicas', rep_principal:'Sismo principal', rep_prob24:'Probabilidade de uma réplica em 24 h', rep_prob7:'Probabilidade de uma réplica em 7 dias', rep_mayor:'Réplica mais forte esperada', rep_esperadas:'Réplicas esperadas', rep_observadas:'Réplicas já registadas', rep_prox:'nas próximas 24 h', rep_nota:'Cálculo estatístico feito no seu telefone com as leis de Omori-Utsu e Båth e o modelo genérico de Reasenberg-Jones. Diz quantas réplicas se podem esperar, NÃO prevê nenhuma em concreto nem quando. As réplicas fortes podem derrubar o que o sismo principal deixou tocado: não entre em edifícios danificados.',
- rep_ayuda_btn:"O que significa isto?", rep_ayuda_txt:"Esse quadro não fala do sismo que acabou de ver na lista. Fala do tremor mais forte do mundo nos últimos 14 dias — agora o de <b>M {Mm} em {loc}</b> — e do que costuma vir DEPOIS de um tremor assim.\n\nDepois de um sismo grande a terra continua a acomodar-se e dá tremores mais pequenos: as réplicas. Sabe-se que vão baixando pouco a pouco, e dessa conta saem os números acima:\n\n• <b>Probabilidade em 24 h e em 7 dias:</b> em cada 100 vezes que acontece algo assim, em quantas há pelo menos uma réplica de M {M1} ou mais. Não diz o dia nem a hora.\n• <b>Réplicas esperadas:</b> quantas de M {M2} ou mais se podem esperar amanhã. É uma média: podem ser mais, ou nenhuma.\n• <b>Réplica mais forte esperada:</b> a maior fica quase sempre um ponto abaixo da principal, à volta de M {mayor}.\n• <b>Réplicas já registadas:</b> as que foram mesmo contadas à volta, até {radio} km do epicentro.\n\nO importante: isto <b>NÃO diz quando nem onde vai tremer</b>, e não é um aviso. A única coisa a fazer com isto: se um edifício ficou tocado pelo sismo grande, não entrar lá. São as réplicas que os deitam abaixo.",
- tsu_badge:'🌊 Risco de tsunami', tsu_local:'Possível tsunami local na costa próxima', tsu_regional:'Risco de tsunami regional', tsu_oceanico:'Risco de tsunami em todo o oceano', tsu_marino:'sismo no mar', tsu_oficial:'Avisos oficiais', tsu_nota:'Indicador informativo calculado no seu telefone a partir da magnitude, da profundidade e de o epicentro cair no mar. NÃO é um aviso oficial de tsunami.',
- capa_placas:'🗺️ Placas', capa_fallas:'⛓️ Falhas', leyenda_placas:'Limite de placa tectónica', leyenda_inversa:'Falha inversa / subducção', leyenda_rumbo:'Falha de desligamento', leyenda_normal:'Falha normal', capa_cargando:'A carregar a camada…', capa_error:'Não foi possível carregar a camada.', borde_placa:'Limite de placa', falla_activa:'Falha ativa',
- pwa_label:'App e avisos', instalar_btn:'⬇️ Instalar a app no telefone', avisos_btn:'🔔 Ativar os avisos', pwa_hint:'Instale-a e receberá o aviso mesmo com a app em segundo plano. Os avisos são criados no próprio telefone: não há servidor de notificações nem conta para registar.', avisos_on:'🔔 Avisos ativos: será avisado mesmo a usar outra app.', avisos_no:'Este navegador não permite avisos. No iPhone, instale primeiro a app em Partilhar → Adicionar ao ecrã principal.', avisos_negado:'Avisos bloqueados. Ative-os nas definições do navegador para este site.', instalada:'✅ App instalada.', aviso_sismo:'Sismo detetado',
- sensor_quieto:'📳 Sensor ativo — o telefone está pousado e quieto: a vigiar.', sensor_movido:'📳 Sensor ativo — o telefone move-se, por isso não vigia. Deixe-o quieto numa mesa meio minuto e começa sozinho.',
- instalar_grande:'📲 INSTALAR NO SEU TELEFONE', ya_instalada:'✅ JÁ ESTÁ NO ECRÃ PRINCIPAL', guia_add:'Adicionar', guia_tit:'Como pô-la no ecrã principal', guia_p1:'Passo 1', guia_p2:'Passo 2', guia_p3:'Passo 3', guia_1:'Toque no botão de partilha, ao lado da barra de endereços.', guia_2:'Desça a lista e toque em «Adicionar ao ecrã principal».', guia_3:'Toque em «Adicionar», em cima à direita. Já tem o ícone no ecrã.', guia_nota:'A partir desse ícone a app abre em ecrã inteiro e os avisos funcionam melhor.',
- pasos_label:'O que foi ativado', paso1_tit:'Vigilância e alarme', paso1_ok:'✅ Pronto: a app já vigia e o alarme vai tocar.', avisos_tit:'Avisos mesmo com a app em segundo plano', paso_pendiente:'👉 Falta um toque: carregue no botão acima.', paso_instalada:'✅ Pronto: já está no ecrã principal.', paso_ios:'👉 Para a ter no ecrã principal: toque no botão de partilha do navegador (⬆️) e escolha «Adicionar ao ecrã principal».',
- sensor_label:'O seu telefone como sensor', sensor_btn:'📳 Usar o movimento do telefone', sensor_hint:'O telefone deteta a sua própria vibração. Se tremer com padrão de sismo e ao mesmo tempo houver um sismo reportado perto, o alarme dispara na hora. A medição não sai do telefone.', sensor_on:'📳 Sensor ativo — a vigiar o movimento do telefone.', sensor_no:'Este telefone ou navegador não permite ler o movimento.', sensor_negado:'Permissão negada: sem acesso ao movimento do telefone.', sensor_temblor:'📳 O seu telefone está a tremer', sensor_confirmado:'SISMO! O seu telefone treme e há um reportado perto',
- posible_sismo:'Possível sismo não confirmado (pessoas o sentiram)', testimonios:'relatos', sin_confirmar:'não confirmado',
- temp_titulo:'🌡️ Temperatura do epicentro', temp_cargando:'Consultando NASA POWER…',
- temp_fuente:'Temperatura de superfície (TS, °C) — dados do projeto NASA POWER (power.larc.nasa.gov). Comparação exploratória: a ciência não demonstrou que a temperatura preveja sismos.',
- temp_error:'Não foi possível obter a temperatura (NASA POWER não respondeu). Tente daqui a pouco.', temp_sismo:'sismo',
- acc_ios_t:'🍎 Instalar no iPhone (Safari)',
- acc_ios_c:'Toque em "Compartilhar" (o quadro com a seta) → "Adicionar à Tela de Início". Abra pelo ícone para ocupar a tela inteira.',
- acc_and_t:'🤖 Instalar no Android (Chrome)', acc_and_c:'Toque nos três pontos (⋮) → "Instalar aplicativo".',
- aviso:'⚠️ <b>Aviso:</b> ferramenta gratuita e <b>sem fins lucrativos</b>, de caráter informativo. <b>Não é um sistema oficial de alerta precoce.</b> Usa dados públicos do USGS e da FUNVISIS que podem atrasar, falhar ou estar incompletos. <b>Não substitui a Proteção Civil nem os canais oficiais.</b> Não garante avisar de todos os sismos nem funcionar sem conexão. Use por sua própria conta e risco.',
- firma:'Um projeto da Aereo Labs',
- garantia:'⚖️ A app é fornecida tal como está, sem garantia de disponibilidade nem de exatidão dos dados.',
- privacidad:'🔒 <b>Privacidade:</b> esta app não tem servidor próprio nem conta de utilizador. O seu navegador consulta diretamente USGS, EMSC, NASA POWER e o mapa do OpenStreetMap, e esses serviços veem o endereço IP a partir do qual se liga, como em qualquer site. A sua localização e as medidas do sensor de movimento ficam no telefone: nunca são enviadas para lado nenhum.',
- creditos:'📊 <b>De onde vêm os dados:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundação Venezuelana de Pesquisas Sismológicas) e <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterrâneo, ao vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Falhas ativas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Obrigado a todos eles: sem os seus dados abertos este app não existiria.'
+ creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Tectonic plates: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Active faults: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Country boxes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain). Thanks to all of them: without their open data this app would not exist.'
 }
 };
 function t(k){ return (I18N[idioma]&&I18N[idioma][k]) || I18N.es[k] || k; }
@@ -1138,7 +1063,8 @@ function aplicarIdioma(){
     document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=t(el.getAttribute('data-i18n')); });
     // solo aviso y créditos llevan HTML, y sale del diccionario propio, no de fuera
     document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML=t(el.getAttribute('data-i18n-html')); });
-    ['es','en','it','pt'].forEach(l=>{ const b=document.getElementById('lang-'+l); if(b) b.classList.toggle('on', l===idioma); });
+    document.querySelectorAll('[data-i18n-ph]').forEach(el=>{ el.placeholder=t(el.getAttribute('data-i18n-ph')); });
+    ['es','en'].forEach(l=>{ const b=document.getElementById('lang-'+l); if(b) b.classList.toggle('on', l===idioma); });
     const btn=document.getElementById('btn-activar');
     btn.textContent = monitoreoActivo ? t('monitoreando') : t('activar_btn');
     if(sensorActivo){
@@ -1170,7 +1096,6 @@ function initIdioma(){
     let g=null; try{ g=localStorage.getItem(IDIOMA_KEY); }catch(e){}
     if(g && I18N[g]) idioma=g;
 }
-let modoMundo = false;          // se restaura de localStorage al arrancar (ver initModo)
 const VET_OFFSET_H = 4; // Venezuela = UTC-4, para convertir la hora de FUNVISIS
 // La API de FUNVISIS no permite peticiones desde el navegador (sin CORS). Para usarla hace falta
 // un repetidor propio (Cloudflare Worker) que la reenvíe con la cabecera CORS. Pega aquí la URL
@@ -1186,34 +1111,12 @@ let primeraCarga = true;        // en el primer barrido no suena (evita alarma p
 function toggle(el){ const c=el.nextElementSibling; c.style.display = c.style.display==='block'?'none':'block'; }
 function cambiarUmbral(v){ umbralAlarma = parseFloat(v); document.getElementById('umbral-val').textContent = umbralAlarma.toFixed(1); }
 
-// ---- Zona vigilada: Venezuela o el planeta entero ----
+// ---- Cabecera: la zona vigilada es siempre el planeta entero ----
 function pintarModo(){
-    document.getElementById('btn-vzla').classList.toggle('on', !modoMundo);
-    document.getElementById('btn-mundo').classList.toggle('on', modoMundo);
-    document.getElementById('titulo').textContent = t(modoMundo?'titulo_mundo':'titulo_vzla');
-    document.getElementById('fuentes').textContent = t(modoMundo?'fuentes_mundo':'fuentes_vzla');
-    document.getElementById('hint-modo').textContent = modoMundo
-        ? t('modo_hint_mundo').replace('{mag}', MUNDO_MINMAG.toFixed(1))
-        : t('modo_hint_vzla');
-
-}
-function cambiarModo(aMundo){
-    if(modoMundo === !!aMundo) return;
-    modoMundo = !!aMundo;
-    try { localStorage.setItem(MODO_KEY, modoMundo ? 'mundo' : 'vzla'); } catch(e){}
-    pintarModo();
-    // Lista nueva: se olvida lo visto y no suena la alarma por lo que ya estaba ahí.
-    idsVistos = new Set(); vistosRec = []; sismosEnVivo = []; ultimoSondeo = [];
-    primeraCarga = true;
-    encuadrarMapa();
-    testimAvisados=new Set(); testimPrimera=true;
-    if(monitoreoActivo){ abrirEmsc(); chequear(); sondearTestimonios(); }
-}
-function initModo(){
-    let guardado = null;
-    try { guardado = localStorage.getItem(MODO_KEY); } catch(e){}
-    modoMundo = (guardado === 'mundo');
-    pintarModo();
+    document.getElementById('titulo').textContent = t('titulo');
+    document.getElementById('fuentes').textContent = t('fuentes');
+    document.getElementById('hint-modo').textContent =
+        t('modo_hint').replace('{mag}', MUNDO_MINMAG.toFixed(1));
 }
 
 // ---- El telefono como sensor (solo en este aparato: nada de esto se envia a ningun sitio) ----
@@ -1634,11 +1537,7 @@ function setBadge(id,ok,txt){ const e=document.getElementById(id); e.className='
 async function fetchUSGS(){
     const start=new Date(Date.now()-7*864e5).toISOString().slice(0,10);
     const url=`https://earthquake.usgs.gov/fdsnws/event/1/query.geojson?starttime=${start}`+
-        (modoMundo
-            ? `&minmagnitude=${MUNDO_MINMAG}&orderby=time&limit=100`
-            : `&minlatitude=${VZLA_BBOX.minLat}&maxlatitude=${VZLA_BBOX.maxLat}`+
-              `&minlongitude=${VZLA_BBOX.minLon}&maxlongitude=${VZLA_BBOX.maxLon}`+
-              `&minmagnitude=1&orderby=time&limit=50`);
+        `&minmagnitude=${MUNDO_MINMAG}&orderby=time&limit=100`;
     try{
         const ctrl=new AbortController(); const to=setTimeout(()=>ctrl.abort(),12000);
         const r=await fetch(url,{signal:ctrl.signal}); clearTimeout(to);
@@ -1711,11 +1610,7 @@ function abrirEmsc(){
         const s=sismoDesdeEmsc(m);
         if(!s) return;
         s.prelim = (m.action !== 'update');
-        // Mundo: desde la magnitud fijada. Venezuela: cualquier sismo dentro de la caja.
-        if(modoMundo){ if(s.mag < MUNDO_MINMAG) return; }
-        else if(!(isFinite(s.lat)&&isFinite(s.lon)
-            && s.lat>=VZLA_BBOX.minLat && s.lat<=VZLA_BBOX.maxLat
-            && s.lon>=VZLA_BBOX.minLon && s.lon<=VZLA_BBOX.maxLon)) return;
+        if(s.mag < MUNDO_MINMAG) return;   // el planeta entero: desde la magnitud fijada
         // una revisión del mismo sismo (action "update") reemplaza a la anterior, no se duplica
         sismosEnVivo=[s, ...sismosEnVivo.filter(x=>x.id!==s.id)].slice(0,60);
         refrescar();
@@ -1735,9 +1630,7 @@ let testimAvisados=new Set(), testimPrimera=true, ambarUnid=null, ambarTimer=nul
 async function sondearTestimonios(){
     if(!monitoreoActivo) return;
     try{
-        const q = modoMundo
-            ? `${TESTIM_URL}?minnbtestimonies=10&limit=20&format=json`
-            : `${TESTIM_URL}?lat=6.5&lon=-66.5&maxradius=9&minnbtestimonies=3&limit=20&format=json`;
+        const q = `${TESTIM_URL}?minnbtestimonies=10&limit=20&format=json`;
         const r=await fetch(q); if(!r.ok) return;
         const lista=await r.json(); if(!Array.isArray(lista)) return;
         const ahora=Date.now();
@@ -1885,11 +1778,309 @@ function restaurarCapas(){
     ['placas','fallas'].forEach(c=>{ if(g[c] && !capasPuestas[c]) alternarCapa(c); });
 }
 
-// Encuadre según la zona vigilada: Venezuela de cerca, el planeta entero de lejos.
+// ---- Buscador de paises ----
+// La tabla son recuadros [sur, oeste, norte, este] sacados de Natural Earth, Admin 0 Countries
+// 1:50m (naturalearthdata.com). Ese conjunto es de dominio publico: no exige permiso ni cita,
+// pero la casa la pone igual - "Made with Natural Earth".
+// De cada pais se toma solo su trozo de tierra mas grande, para que Francia encuadre en Francia
+// y no en la Guayana. Va escrita aqui dentro a proposito: escribir un nombre no manda nada a
+// ningun servidor, y el buscador funciona con el telefono sin cobertura.
+// Formato: [nombre en espanol, nombre en ingles (0 si es el mismo), sur, oeste, norte, este]
+const PAISES = [
+["Afganistán","Afghanistan",29.39,60.49,38.46,74.89],
+["Albania",0,39.65,19.28,42.65,21.03],
+["Alemania","Germany",47.28,5.86,54.9,15.02],
+["Andorra",0,42.43,1.41,42.64,1.74],
+["Angola",0,-18.02,11.74,-5.86,24.05],
+["Anguila","Anguilla",18.17,-63.16,18.27,-62.98],
+["Antigua y Barbuda","Antigua and Barbuda",17.0,-61.89,17.17,-61.69],
+["Antártida","Antarctica",-85,-180,-63,180],
+["Arabia Saudita","Saudi Arabia",16.37,34.62,32.12,55.64],
+["Argelia","Algeria",18.99,-8.68,37.09,11.97],
+["Argentina",0,-52.36,-73.58,-21.8,-53.67],
+["Armenia",0,38.87,43.44,41.29,46.58],
+["Aruba",0,12.42,-70.07,12.61,-69.9],
+["Australia",0,-39.15,113.18,-10.71,153.62],
+["Austria",0,46.4,9.52,49.0,17.15],
+["Azerbaiyán","Azerbaijan",38.4,45.0,41.89,50.37],
+["Bahamas","The Bahamas",25.9,-77.94,26.94,-77.04],
+["Bangladés","Bangladesh",20.79,88.02,26.57,92.63],
+["Barbados",0,13.06,-59.65,13.32,-59.43],
+["Baréin","Bahrain",25.81,50.45,26.25,50.62],
+["Belice","Belize",15.89,-89.24,18.48,-88.09],
+["Benín","Benin",6.22,0.76,12.38,3.83],
+["Bermudas","Bermuda",32.26,-64.86,32.39,-64.67],
+["Bielorrusia","Belarus",51.27,23.18,56.15,32.71],
+["Birmania","Myanmar",10.03,92.18,28.52,101.15],
+["Bolivia",0,-22.89,-69.65,-9.71,-57.5],
+["Bosnia y Herzegovina","Bosnia and Herzegovina",42.56,15.74,45.28,19.58],
+["Botsuana","Botswana",-26.85,19.98,-17.79,29.36],
+["Brasil","Brazil",-33.74,-74.0,5.26,-34.81],
+["Brunéi","Brunei",4.02,114.06,5.02,115.05],
+["Bulgaria",0,41.24,22.34,44.24,28.59],
+["Burkina Faso",0,9.42,-5.52,15.08,2.39],
+["Burundi",0,-4.46,29.01,-2.31,30.81],
+["Bután","Bhutan",26.7,88.74,28.31,92.08],
+["Bélgica","Belgium",49.51,2.52,51.49,6.36],
+["Cabo Verde","Cape Verde",14.92,-23.79,15.33,-23.44],
+["Camboya","Cambodia",10.41,102.32,14.71,107.61],
+["Camerún","Cameroon",1.68,8.53,13.08,16.18],
+["Canadá","Canada",41.67,-141.0,71.99,-55.67],
+["Catar","Qatar",24.56,50.75,26.15,51.61],
+["Chad",0,7.48,13.45,23.45,23.98],
+["Chile",0,-53.88,-75.71,-17.51,-67.01],
+["China","People's Republic of China",20.26,73.61,53.56,134.75],
+["Chipre","Cyprus",34.57,32.3,35.18,34.05],
+["Ciudad del Vaticano","Vatican City",41.9,12.43,41.91,12.44],
+["Colombia",0,-4.24,-79.03,12.43,-66.88],
+["Comoras","Comoros",-11.91,43.23,-11.37,43.49],
+["Corea del Norte","North Korea",37.72,124.35,43.0,130.69],
+["Corea del Sur","South Korea",34.31,126.16,38.62,129.57],
+["Costa Rica",0,8.07,-85.91,11.19,-82.56],
+["Costa de Marfil","Ivory Coast",4.35,-8.6,10.72,-2.51],
+["Croacia","Croatia",42.94,13.52,46.53,19.4],
+["Cuba",0,19.86,-84.89,23.19,-74.14],
+["Curazao","Curaçao",12.05,-69.16,12.38,-68.75],
+["Dinamarca","Denmark",54.81,8.12,57.74,10.93],
+["Dominica",0,15.23,-61.48,15.63,-61.25],
+["Ecuador",0,-4.99,-80.96,1.46,-75.25],
+["Egipto","Egypt",21.99,24.7,31.65,36.87],
+["El Salvador",0,13.16,-90.11,14.43,-87.72],
+["Emiratos Árabes Unidos","United Arab Emirates",22.62,51.57,26.07,56.39],
+["Eritrea",0,12.38,36.43,18.01,43.12],
+["Eslovaquia","Slovakia",47.76,16.86,49.6,22.54],
+["Eslovenia","Slovenia",45.43,13.38,46.86,16.52],
+["España","Spain",36.03,-9.24,43.76,3.31],
+["Estados Federados de Micronesia","Federated States of Micronesia",6.79,158.13,6.98,158.33],
+["Estados Unidos","United States of America",25.13,-124.71,49.37,-66.99],
+["Estonia",0,57.53,23.43,59.64,28.15],
+["Etiopía","Ethiopia",3.46,33.0,14.85,47.98],
+["Filipinas","Philippines",12.57,119.76,18.62,124.14],
+["Finlandia","Finland",59.82,20.62,70.06,31.54],
+["Fiyi","Fiji",-18.26,177.25,-17.31,178.67],
+["Francia","France",42.34,-4.76,51.1,8.14],
+["Gabón","Gabon",-3.92,8.7,2.3,14.48],
+["Gambia","The Gambia",13.06,-16.82,13.81,-13.83],
+["Georgia",0,41.07,39.98,43.57,46.67],
+["Ghana",0,4.76,-3.24,11.17,1.19],
+["Glaciar de Siachen","Siachen Glacier",35.11,76.77,35.66,77.8],
+["Granada","Grenada",12.01,-61.78,12.24,-61.61],
+["Grecia","Greece",36.45,20.0,41.74,26.62],
+["Groenlandia","Greenland",59.82,-72.82,83.6,-11.43],
+["Guam",0,13.26,144.65,13.62,144.94],
+["Guatemala",0,13.74,-92.24,17.82,-88.23],
+["Guernsey",0,49.43,-2.65,49.51,-2.51],
+["Guinea",0,7.22,-15.05,12.67,-7.68],
+["Guinea Ecuatorial","Equatorial Guinea",0.96,9.39,2.3,11.34],
+["Guinea-Bisáu","Guinea-Bissau",10.94,-16.71,12.68,-13.67],
+["Guyana",0,1.2,-61.39,8.55,-56.48],
+["Haití","Haiti",18.04,-74.48,19.93,-71.65],
+["Honduras",0,12.98,-89.36,16.02,-83.16],
+["Hong Kong",0,22.3,113.9,22.56,114.34],
+["Hungría","Hungary",45.75,16.09,48.55,22.88],
+["India",0,8.08,68.17,35.5,97.34],
+["Indonesia",0,-5.91,95.21,5.63,106.06],
+["Irak","Iraq",29.06,38.77,37.37,48.55],
+["Irlanda","Ireland",51.47,-10.39,55.37,-6.03],
+["Irán","Iran",25.1,44.02,39.77,63.31],
+["Isla Norfolk","Norfolk Island",-29.1,167.91,-29.01,167.99],
+["Isla Santa Elena","Saint Helena",-16.0,-5.78,-15.91,-5.66],
+["Isla de Man","Isle of Man",54.06,-4.79,54.41,-4.34],
+["Islandia","Iceland",63.41,-24.48,66.53,-13.56],
+["Islas Ashmore y Cartier","Ashmore and Cartier Islands",-12.44,123.57,-12.42,123.6],
+["Islas Caimán","Cayman Islands",19.27,-81.42,19.38,-81.11],
+["Islas Cook","Cook Islands",-21.25,-159.84,-21.19,-159.74],
+["Islas Feroe","Faroe Islands",61.95,-7.17,62.32,-6.63],
+["Islas Georgias del Sur y Sandwich del Sur","South Georgia and the South Sandwich Islands",-54.87,-38.02,-53.98,-35.8],
+["Islas Heard y McDonald","Heard Island and McDonald Islands",-53.18,73.25,-52.97,73.84],
+["Islas Malvinas","Falkland Islands",-52.31,-59.65,-51.27,-57.79],
+["Islas Marianas del Norte","Northern Mariana Islands",15.11,145.68,15.27,145.82],
+["Islas Marshall","Marshall Islands",7.07,171.04,7.17,171.39],
+["Islas Pitcairn","Pitcairn Islands",-24.41,-128.35,-24.32,-128.29],
+["Islas Salomón","Solomon Islands",-8.56,158.46,-7.54,159.88],
+["Islas Turcas y Caicos","Turks and Caicos Islands",21.75,-71.85,21.85,-71.64],
+["Islas Vírgenes Británicas","British Virgin Islands",18.46,-64.44,18.52,-64.32],
+["Islas Vírgenes de los Estados Unidos","United States Virgin Islands",17.7,-64.89,17.79,-64.58],
+["Israel",0,29.48,34.25,33.42,35.89],
+["Italia","Italy",37.94,6.63,47.08,18.49],
+["Jamaica",0,17.71,-78.34,18.52,-76.21],
+["Japón","Japan",33.49,130.89,41.51,141.99],
+["Jersey",0,49.17,-2.24,49.27,-2.01],
+["Jordania","Jordan",29.19,34.95,33.37,39.29],
+["Kazajistán","Kazakhstan",40.61,46.61,55.39,87.32],
+["Kenia","Kenya",-4.69,33.9,5.49,41.88],
+["Kirguistán","Kyrgyzstan",39.21,69.23,43.24,80.25],
+["Kiribati",0,1.73,-157.58,2.03,-157.18],
+["Kosovo",0,41.85,20.03,43.26,21.75],
+["Kuwait",0,28.53,46.53,30.1,48.44],
+["Laos",0,13.92,100.11,22.5,107.65],
+["Lesoto","Lesotho",-30.64,27.05,-28.58,29.39],
+["Letonia","Latvia",55.67,21.01,58.06,28.2],
+["Liberia",0,4.35,-11.51,8.54,-7.4],
+["Libia","Libya",19.5,9.31,33.18,25.15],
+["Liechtenstein",0,47.06,9.48,47.27,9.61],
+["Lituania","Lithuania",53.89,21.05,56.41,26.78],
+["Luxemburgo","Luxembourg",49.45,5.72,50.17,6.49],
+["Líbano","Lebanon",33.08,35.11,34.68,36.58],
+["Macao","Macau",22.2,113.48,22.25,113.55],
+["Macedonia del Norte","North Macedonia",40.85,20.45,42.36,23.01],
+["Madagascar",0,-25.57,43.26,-12.08,50.48],
+["Malasia","Malaysia",0.86,109.54,6.99,119.27],
+["Malaui","Malawi",-17.13,32.67,-9.4,35.89],
+["Maldivas","Maldives",4.16,73.47,4.25,73.53],
+["Malta",0,35.82,14.35,35.98,14.57],
+["Malí","Mali",10.14,-12.28,25.0,4.23],
+["Marruecos","Morocco",21.42,-17.0,35.93,-1.07],
+["Mauricio","Mauritius",-20.51,57.32,-19.99,57.79],
+["Mauritania",0,14.75,-17.06,27.29,-4.82],
+["Moldavia","Moldova",45.45,26.62,48.48,30.13],
+["Mongolia",0,41.6,87.74,52.12,119.9],
+["Montenegro",0,41.87,18.44,43.54,20.35],
+["Montserrat",0,16.68,-62.22,16.81,-62.15],
+["Mozambique",0,-26.86,30.22,-10.46,40.84],
+["México","Mexico",14.55,-117.13,32.72,-86.77],
+["Mónaco","Monaco",43.73,7.38,43.77,7.44],
+["Namibia",0,-28.94,11.72,-16.97,25.26],
+["Nauru",0,-0.55,166.91,-0.49,166.96],
+["Nepal",0,26.36,80.05,30.39,88.16],
+["Nicaragua",0,10.74,-87.67,15.01,-83.16],
+["Nigeria",0,4.28,2.69,13.87,14.63],
+["Niue",0,-19.14,-169.95,-18.97,-169.79],
+["Noruega","Norway",58.02,4.91,71.09,30.96],
+["Nueva Caledonia","New Caledonia",-22.38,164.04,-20.14,167.0],
+["Nueva Zelanda","New Zealand",-46.63,166.48,-40.49,174.37],
+["Níger","Niger",11.7,0.16,23.52,15.96],
+["Omán","Oman",16.65,51.98,24.98,59.84],
+["Pakistán","Pakistan",23.75,60.84,37.04,77.05],
+["Palaos","Palau",7.36,134.51,7.71,134.66],
+["Palestina","Palestine",31.35,34.87,32.53,35.57],
+["Panamá","Panama",7.22,-83.03,9.6,-77.2],
+["Papúa Nueva Guinea","Papua New Guinea",-10.65,140.86,-2.61,150.85],
+["Paraguay",0,-27.55,-62.65,-19.29,-54.24],
+["Países Bajos","Netherlands",50.75,3.45,53.44,7.2],
+["Perú","Peru",-18.35,-81.34,-0.04,-68.69],
+["Polinesia Francesa","French Polynesia",-17.86,-149.64,-17.5,-149.15],
+["Polonia","Poland",49.02,14.13,54.84,24.11],
+["Portugal",0,37.01,-9.48,42.14,-6.21],
+["Puerto Rico",0,17.95,-67.26,18.52,-65.62],
+["Reino Unido","United Kingdom",50.02,-6.13,58.65,1.75],
+["República Centroafricana","Central African Republic",2.27,14.43,11.0,27.4],
+["República Checa","Czech Republic",48.58,12.09,51.04,18.83],
+["República Democrática del Congo","Democratic Republic of the Congo",-13.45,12.21,5.31,31.27],
+["República Dominicana","Dominican Republic",17.64,-72.0,19.91,-68.34],
+["República Turca del Norte de Chipre","Turkish Republic of Northern Cyprus",35.0,32.71,35.66,34.56],
+["República de China","Taiwan",21.93,120.07,25.28,121.93],
+["República del Congo","Republic of the Congo",-5.0,11.13,3.69,18.62],
+["Ruanda","Rwanda",-2.81,28.86,-1.06,30.88],
+["Rumania","Romania",43.67,20.24,48.26,29.71],
+["Rusia","Russia",41.2,27.35,77.73,180],
+["Sahara Occidental","Western Sahara",20.81,-17.1,27.66,-8.68],
+["Samoa",0,-13.8,-172.78,-13.47,-172.18],
+["Samoa Estadounidense","American Samoa",-14.36,-170.82,-14.26,-170.57],
+["San Bartolomé","Saint Barthélemy",17.88,-62.88,17.92,-62.8],
+["San Cristóbal y Nieves","Saint Kitts and Nevis",17.22,-62.84,17.4,-62.63],
+["San Marino",0,43.89,12.4,43.99,12.51],
+["San Martín","Saint Martin",18.07,-63.12,18.12,-63.01],
+["San Martín","Sint Maarten",18.02,-63.12,18.07,-63.01],
+["San Pedro y Miquelón","Saint Pierre and Miquelon",46.8,-56.39,47.1,-56.26],
+["San Vicente y las Granadinas","Saint Vincent and the Grenadines",13.14,-61.28,13.36,-61.12],
+["Santa Lucía","Saint Lucia",13.72,-61.07,14.09,-60.89],
+["Santo Tomé y Príncipe","São Tomé and Príncipe",0.05,6.47,0.4,6.75],
+["Senegal",0,12.33,-17.54,16.68,-11.38],
+["Serbia",0,42.24,18.84,46.17,22.98],
+["Seychelles",0,-4.79,55.38,-4.56,55.54],
+["Sierra Leona","Sierra Leone",6.91,-13.29,10.0,-10.28],
+["Singapur","Singapore",1.27,103.65,1.45,104.0],
+["Siria","Syria",32.32,35.76,37.3,42.36],
+["Somalia",0,-1.7,40.96,11.98,51.39],
+["Somalilandia","Somaliland",8.0,42.66,11.5,48.94],
+["Sri Lanka",0,5.95,79.71,9.81,81.88],
+["Suazilandia","Eswatini",-27.31,30.79,-25.74,32.11],
+["Sudáfrica","South Africa",-34.79,16.45,-22.15,32.89],
+["Sudán","Sudan",8.67,21.83,22.2,38.61],
+["Sudán del Sur","South Sudan",3.49,24.15,12.22,35.27],
+["Suecia","Sweden",55.35,11.15,69.04,24.16],
+["Suiza","Switzerland",45.83,5.97,47.78,10.45],
+["Surinam","Suriname",1.84,-58.05,5.99,-53.99],
+["Tailandia","Thailand",5.64,97.37,20.42,105.64],
+["Tanzania",0,-11.72,29.32,-0.99,40.46],
+["Tayikistán","Tajikistan",36.68,67.35,41.04,75.12],
+["Territorio Británico del Océano Índico","British Indian Ocean Territory",-7.44,72.35,-7.22,72.5],
+["Territorios Australianos del Océano Índico","Australian Indian Ocean Territories",-10.56,105.58,-10.43,105.73],
+["Tierras Australes y Antárticas Francesas","French Southern and Antarctic Lands",-49.71,68.77,-48.66,70.56],
+["Timor Oriental","East Timor",-9.51,124.92,-8.32,127.3],
+["Togo",0,6.09,-0.09,11.12,1.78],
+["Tonga",0,-21.26,-175.36,-21.07,-175.08],
+["Trinidad y Tobago","Trinidad and Tobago",10.06,-61.91,10.84,-60.92],
+["Turkmenistán","Turkmenistan",35.17,52.49,42.78,66.63],
+["Turquía","Turkey",35.83,26.1,42.06,44.82],
+["Tuvalu",0,-8.53,179.2,-8.47,179.22],
+["Túnez","Tunisia",30.23,7.5,37.34,11.54],
+["Ucrania","Ukraine",45.23,22.13,52.35,40.13],
+["Uganda",0,-1.47,29.56,4.22,34.98],
+["Uruguay",0,-34.93,-58.44,-30.1,-53.13],
+["Uzbekistán","Uzbekistan",37.17,55.98,45.56,73.14],
+["Vanuatu",0,-15.63,166.53,-14.64,167.2],
+["Venezuela",0,0.69,-73.37,12.18,-59.83],
+["Vietnam",0,8.58,102.13,23.35,109.44],
+["Wallis y Futuna","Wallis and Futuna",-14.32,-178.19,-14.23,-178.04],
+["Yemen",0,12.61,42.66,19.0,53.09],
+["Yibuti","Djibouti",10.94,41.76,12.71,43.41],
+["Zambia",0,-18.04,21.98,-8.19,33.66],
+["Zimbabue","Zimbabwe",-22.4,25.22,-15.64,33.01],
+["Åland",0,60.08,19.67,60.41,20.26]
+];
+
+function sinTildes(s){
+    return (s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+}
+let paisesIdx = null;
+function idxPaises(){
+    if(!paisesIdx) paisesIdx = PAISES.map(p => ({ p, n:[sinTildes(p[0]), sinTildes(p[1]||p[0])] }));
+    return paisesIdx;
+}
+// Se busca segun se escribe. Primero los que EMPIEZAN por lo tecleado: quien escribe "chi"
+// quiere Chile antes que Machin de nadie.
+function buscarPais(txt){
+    const cont = document.getElementById('buscar-lista');
+    cont.innerHTML = '';
+    const q = sinTildes(txt);
+    if(q.length < 2) return;
+    const empieza = [], contiene = [];
+    idxPaises().forEach(o => {
+        if(o.n.some(n => n.startsWith(q))) empieza.push(o);
+        else if(o.n.some(n => n.indexOf(q) >= 0)) contiene.push(o);
+    });
+    empieza.concat(contiene).slice(0, 8).forEach(o => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'sug';
+        b.textContent = idioma === 'en' ? (o.p[1] || o.p[0]) : o.p[0];
+        b.onclick = () => {
+            document.getElementById('buscar-pais').value = b.textContent;
+            cont.innerHTML = '';
+            irAPais(o.p);
+        };
+        cont.appendChild(b);
+    });
+}
+// El Enter elige la primera sugerencia: en el telefono evita tener que apuntar a la lista.
+document.addEventListener('keydown', e => {
+    if(e.key !== 'Enter' || e.target.id !== 'buscar-pais') return;
+    const b = document.querySelector('#buscar-lista .sug');
+    if(b){ e.preventDefault(); b.click(); e.target.blur(); }
+});
+function irAPais(p){
+    if(!mapa) return;
+    // Un margen minimo para que Andorra o Malta no acaben con un zoom absurdo pegado al suelo.
+    const m = 0.35;
+    mapa.fitBounds([[p[2]-m, p[3]-m], [p[4]+m, p[5]+m]], { padding:[20,20], maxZoom:7 });
+}
+
+// Encuadre de arranque: el planeta entero.
 function encuadrarMapa(){
     if(!mapa) return;
-    if(modoMundo) mapa.setView([10, 0], 2);
-    else mapa.setView([8.5, -66], 5);
+    mapa.setView([10, 0], 2);
 }
 function actualizarMapa(sismos){
     if(!mapa || !capaSismos) return;
@@ -1902,9 +2093,8 @@ function actualizarMapa(sismos){
         capaSismos.addLayer(m);
         if(i===0) m.openPopup();
     });
-    // En modo Mundo NO se re-centra: el mapa saltaría de continente en cada comprobación y no
-    // dejaría mirar nada. En modo Venezuela todo cae en la misma zona, así que centrar ayuda.
-    if(conCoord.length && !modoMundo) mapa.setView([conCoord[0].lat, conCoord[0].lon], mapa.getZoom());
+    // NO se re-centra solo: el mapa saltaría de continente en cada comprobación y no dejaría
+    // mirar nada. Quien quiera ir a un sitio lo busca por país.
 }
 function cuando(ms){
     const diff=Date.now()-ms, min=Math.round(diff/60000);
@@ -2111,7 +2301,6 @@ async function activarSistema(){
 }
 
 initIdioma();
-initModo();
 aplicarIdioma();
 </script>
 </body>
