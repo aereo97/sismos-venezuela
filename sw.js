@@ -2,7 +2,7 @@
 // Objetivo: que la app abra aunque no haya red (el ultimo listado queda en pantalla)
 // y que se pueda instalar en el telefono. NO cachea datos sismicos: esos siempre van a la red,
 // porque servir un sismo viejo desde cache seria peor que no servir nada.
-const VERSION = 'sismos-v2';
+const VERSION = 'sismos-v3';
 const SHELL = ['./', './index.html', './manifest.webmanifest',
                './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 

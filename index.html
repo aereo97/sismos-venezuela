@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Sismos">
     <!-- Seguridad: la app solo puede conectarse a USGS y al repetidor propio; nada de exfiltrar a otros dominios -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; worker-src 'self'; connect-src 'self' https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu https://power.larc.nasa.gov https://archive-api.open-meteo.com; img-src 'self' data: https://tile.openstreetmap.org; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; manifest-src 'self'; worker-src 'self'; connect-src 'self' https://earthquake.usgs.gov https://shy-sound-3bd3.aereo97.workers.dev https://www.seismicportal.eu wss://www.seismicportal.eu https://power.larc.nasa.gov https://archive-api.open-meteo.com; img-src 'self' data: https://*.basemaps.cartocdn.com; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
     <style>
 /* required styles */
 
@@ -978,7 +978,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y
         <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo).
         Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>.
-        Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors.
+        Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, teselas © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>.
         Gracias a todos ellos: sin sus datos abiertos esta app no existiría.
     </div>
 
@@ -1049,7 +1049,7 @@ es:{
  firma:'Un proyecto de Aereo Labs',
  garantia:'⚖️ La app se ofrece tal cual, sin garantía de disponibilidad ni de exactitud de los datos.',
  privacidad:'🔒 <b>Privacidad:</b> esta app no tiene servidor propio ni cuenta de usuario. Tu navegador consulta directamente a USGS, EMSC, NASA POWER y al mapa de OpenStreetMap, y esos servicios ven la dirección IP desde la que te conectas, como en cualquier página web. Tu ubicación y las medidas del sensor de movimiento se quedan en el teléfono: no se envían a ningún sitio.',
- creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Fallas activas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Recuadros de países: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (dominio público). Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
+ creditos:'📊 <b>De dónde vienen los datos:</b> sismos de <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Fundación Venezolana de Investigaciones Sismológicas) y <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Centro Sismológico Euro-Mediterráneo, en vivo). Temperatura de <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Mapa: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, teselas © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>. Placas tectónicas: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Fallas activas: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Recuadros de países: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (dominio público). Gracias a todos ellos: sin sus datos abiertos esta app no existiría.'
 },
 en:{
  doc_title:'Seismic Monitor', idioma_label:'Language',
@@ -1091,7 +1091,7 @@ en:{
  firma:'A project by Aereo Labs',
  garantia:'⚖️ The app is provided as is, with no guarantee of availability or of the accuracy of the data.',
  privacidad:'🔒 <b>Privacy:</b> this app has no server of its own and no user account. Your browser queries USGS, EMSC, NASA POWER and the OpenStreetMap map directly, and those services see the IP address you connect from, as on any website. Your location and the motion sensor readings stay on the phone: they are never sent anywhere.',
- creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. Tectonic plates: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Active faults: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Country boxes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain). Thanks to all of them: without their open data this app would not exist.'
+ creditos:'📊 <b>Where the data comes from:</b> earthquakes from <a href="https://earthquake.usgs.gov" target="_blank" rel="noopener">USGS</a> (Credit: U.S. Geological Survey), <a href="http://www.funvisis.gob.ve" target="_blank" rel="noopener">FUNVISIS</a> (Venezuelan Foundation for Seismological Research) and <a href="https://www.seismicportal.eu" target="_blank" rel="noopener">EMSC</a> (Euro-Mediterranean Seismological Centre, live). Temperature from <a href="https://power.larc.nasa.gov" target="_blank" rel="noopener">NASA POWER</a>. Map: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, teselas © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>. Tectonic plates: <a href="https://github.com/fraxen/tectonicplates" target="_blank" rel="noopener">PB2002</a> (Bird, 2003). Active faults: <a href="https://github.com/GEMScienceTools/gem-global-active-faults" target="_blank" rel="noopener">GEM Global Active Faults</a> (CC BY-SA 4.0). Country boxes: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">Natural Earth</a> (public domain). Thanks to all of them: without their open data this app would not exist.'
 }
 };
 function t(k){ return (I18N[idioma]&&I18N[idioma][k]) || I18N.es[k] || k; }
@@ -1804,9 +1804,9 @@ let mapa=null, capaSismos=null;
 function crearMapa(){
     if(mapa) return;
     mapa = L.map('mapa').setView([8.5, -66], 5);
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
         { maxZoom:10, minZoom:2,
-          attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors' }).addTo(mapa);
+          attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions" target="_blank" rel="noopener">CARTO</a>', subdomains:'abcd' }).addTo(mapa);
     capaSismos = L.layerGroup().addTo(mapa);
     encuadrarMapa();
     restaurarCapas();
